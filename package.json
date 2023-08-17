@@ -1,0 +1,19 @@
+{
+  "name": "prospark-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "",
+    "app": "yarn workspace app run dev",
+    "build": "yarn workspaces run build",
+    "watch": "yarn workspaces run watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

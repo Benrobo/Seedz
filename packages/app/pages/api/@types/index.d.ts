@@ -6,3 +6,8 @@ export interface CreateUserType {
   role: "MERCHANT" | "SUPPLIER" | "BUYER";
   profileImage: string;
 }
+
+export interface FundWalletType {
+  amount: string;
+  currency: string;
+}

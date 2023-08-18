@@ -1,4 +1,4 @@
-import { CreateUserType } from "../@types";
+import { CreateUserType, FundWalletType } from "../@types";
 import prisma from "../config/prisma";
 import ServerResponseError from "../helper/errorHandler";
 import { CreateUserSchema } from "../helper/validator";
@@ -11,5 +11,5 @@ export default class PaymentController {
     return typeof error !== "undefined";
   }
 
-  async topUp() {}
+  async fundWallet(payload: FundWalletType, userId: string) {}
 }

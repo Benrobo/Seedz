@@ -1,9 +1,11 @@
-import { ApolloServer } from "@apollo/server";
+import { ApolloServer, BaseContext } from "@apollo/server";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import combinedTypeDef from "./typeDef";
 import userResolvers from "./resolvers/user.res";
 import { GraphQLError } from "graphql";
 import paymentResolvers from "./resolvers/payment.res";
+import { NextApiRequest, NextApiResponse } from "next";
+import { getAuth } from "@clerk/nextjs/server";
 
 const apolloServer = new ApolloServer({
   typeDefs: combinedTypeDef,
@@ -49,4 +51,19 @@ const apolloServer = new ApolloServer({
   },
 });
 
-export default startServerAndCreateNextHandler(apolloServer);
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
+
+export default startServerAndCreateNextHandler(apolloServer, {
+  context: async (
+    req: NextApiRequest,
+    res: NextApiResponse
+  ): Promise<BaseContext> => {
+    const { userId } = getAuth(req);
+    (req as any).user = { id: userId };
+    return req;
+  },
+});

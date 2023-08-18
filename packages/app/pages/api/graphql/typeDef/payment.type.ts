@@ -2,27 +2,24 @@ import gql from "graphql-tag";
 
 const paymentTypeDef = gql`
   type Query {
-    getUser(id: String!): User
-    getUsers: [User]
+    getWalletInfo: Wallet
   }
 
   type Mutation {
-    createUser(payload: CreateUserMut!): CreateUserMutOutput
+    fundWallet(payload: WalletTopUp): WalletTopUpRes
   }
 
   # Beginning of  QUE/MUT Fields
-  #   Create user mutation
-  input CreateUserMut {
-    email: String!
-    fullname: String!
-    username: String!
-    role: String!
-    id: String!
-    profileImage: String!
+  #   Wallet topUp
+  input WalletTopUp {
+    amount: String
+    currency: String
   }
 
-  type CreateUserMutOutput {
-    success: Boolean
+  type WalletTopUpRes {
+    authorization_url: String
+    access_code: String
+    reference: String
   }
 
   #   End of QUE/MUT Fields

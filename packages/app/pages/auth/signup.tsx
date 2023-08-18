@@ -1,9 +1,23 @@
 import ImageTag from "@/components/Image";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 function Login() {
   const [steps, setSteps] = React.useState(1);
+  const [role, setRole] = React.useState("");
+
+  const validRoles = [
+    { name: "Merchant", icon: "💼", role: "MERCHANT" },
+    { name: "Buyer", icon: "🛍️", role: "BUYER" },
+    { name: "Supplier", icon: "📦", role: "SUPPLIER" },
+  ];
+
+  const selectedRoles = (name: string) => {
+    const filteredRole = validRoles.filter((role) => role.name === name)[0];
+    if (filteredRole.role === role) setRole("");
+    if (filteredRole.role !== role) setRole(filteredRole.role);
+  };
 
   const handlecNextPrevState = () => {
     if (steps === 2) {
@@ -31,20 +45,20 @@ function Login() {
         {true && (
           <div className="w-full max-w-[450px] flex-wrap h-auto px-[2em] py-[3em] bg-white-100 flex items-center justify-center gap-2 rounded-md">
             {steps === 1 ? (
-              <>
-                <button className="w-[120px] bg-white-100 scale-[.80] shadow-2xl px-5 py-5 rounded-md flex flex-col items-center justify-center">
-                  <span className="text-3xl ">💼</span>
-                  <p className="text-green-700 text-1xl mt-2 N-EB ">Merchant</p>
+              validRoles.map((d) => (
+                <button
+                  onClick={() => selectedRoles(d.name)}
+                  key={d.name}
+                  className={twMerge(
+                    "w-[120px] bg-white-100 scale-[.80] shadow-2xl px-5 py-5 rounded-lg flex flex-col items-center justify-center border-[5px] border-transparent ",
+                    d.role === role &&
+                      "border-solid border-[5px] border-green-700 "
+                  )}
+                >
+                  <span className="text-3xl ">{d.icon}</span>
+                  <p className="text-green-700 text-1xl mt-2 N-EB ">{d.name}</p>
                 </button>
-                <button className="w-[120px] bg-white-100 scale-[.80] shadow-2xl px-5 py-5 rounded-md flex flex-col items-center justify-center">
-                  <span className="text-3xl "> 🛍️</span>
-                  <p className="text-green-700 text-1xl mt-2 N-EB ">Buyer</p>
-                </button>
-                <button className="w-[120px] bg-white-100 scale-[.80] shadow-2xl px-5 py-5 rounded-md flex flex-col items-center justify-center">
-                  <span className="text-3xl "> 📦</span>
-                  <p className="text-green-700 text-1xl mt-2 N-EB ">Supplier</p>
-                </button>
-              </>
+              ))
             ) : (
               <div className="scale-[.90]">
                 <SignUp signInUrl="/auth/login" />

@@ -42,40 +42,38 @@ function Login() {
         </div>
         <br />
         <br />
-        {true && (
-          <div className="w-full max-w-[450px] flex-wrap h-auto px-[2em] py-[3em] bg-white-100 flex items-center justify-center gap-2 rounded-md">
-            {steps === 1 ? (
-              validRoles.map((d) => (
-                <button
-                  onClick={() => selectedRoles(d.name)}
-                  key={d.name}
-                  className={twMerge(
-                    "w-[120px] bg-white-100 scale-[.80] shadow-2xl px-5 py-5 rounded-lg flex flex-col items-center justify-center border-[5px] border-transparent ",
-                    d.role === role &&
-                      "border-solid border-[5px] border-green-700 "
-                  )}
-                >
-                  <span className="text-3xl ">{d.icon}</span>
-                  <p className="text-green-700 text-1xl mt-2 N-EB ">{d.name}</p>
-                </button>
-              ))
-            ) : (
-              <div className="scale-[.90]">
-                <SignUp signInUrl="/auth/login" />
-              </div>
-            )}
-            <div className="w-full mt-5 flex flex-col items-center justify-center">
+        <div className="w-full max-w-[450px] h-[400px] flex-wrap px-[2em] py-[3em] bg-white-100 flex items-center justify-center gap-2 rounded-md">
+          {steps === 1 ? (
+            validRoles.map((d) => (
               <button
-                className="w-full bg-green-700 shadow-2xl px-3 py-2 rounded-[30px] flex flex-col items-center justify-center"
-                onClick={handlecNextPrevState}
+                onClick={() => selectedRoles(d.name)}
+                key={d.name}
+                className={twMerge(
+                  "w-[120px] bg-white-100 scale-[.80] shadow-2xl px-5 py-5 rounded-lg flex flex-col items-center justify-center border-[5px] border-transparent ",
+                  d.role === role &&
+                    "border-solid border-[5px] border-green-700 "
+                )}
               >
-                <p className="text-white-100 text-1xl N-B ">
-                  {steps === 1 ? "Continue" : "Go Back"}
-                </p>
+                <span className="text-3xl ">{d.icon}</span>
+                <p className="text-green-700 text-1xl mt-2 N-EB ">{d.name}</p>
               </button>
+            ))
+          ) : (
+            <div className="scale-[.90]">
+              <SignUp signInUrl="/auth/login" />
             </div>
+          )}
+          <div className="w-full mt-5 flex flex-col items-center justify-center">
+            <button
+              className="w-full bg-green-700 shadow-2xl px-3 py-2 rounded-[30px] flex flex-col items-center justify-center"
+              onClick={handlecNextPrevState}
+            >
+              <p className="text-white-100 text-1xl N-B ">
+                {steps === 1 ? "Continue" : "Go Back"}
+              </p>
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -15,8 +15,10 @@ const userTypeDef = gql`
   input CreateUserMut {
     email: String!
     fullname: String!
+    username: String!
     role: String!
     id: String!
+    profileImage: String!
   }
 
   type CreateUserMutOutput {
@@ -36,11 +38,11 @@ const userTypeDef = gql`
     email: String
     username: String
     fullname: String
+    image: String
     role: Role
     deliveryAddress: [DeliveryAddress]
     transactions: [Transaction]
     wallet: Wallet
-    walletId: String
   }
 
   type DeliveryAddress {

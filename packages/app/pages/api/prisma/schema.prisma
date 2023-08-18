@@ -19,17 +19,17 @@ model Users {
     username        String
     fullname        String
     role            Role              @default(BUYER)
+    image           String
     deliveryAddress DeliveryAddress[]
     transactions    Transaction[]
     ratings         ProductsRating[]
     wallet          Wallet?
-    walletId        String            @unique
 }
 
 model DeliveryAddress {
     id         String @id
     userId     String
-    user       Users  @relation(fields: [userId], references: [id])
+    user       Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
     street     String
     city       String
     state      String
@@ -40,7 +40,7 @@ model DeliveryAddress {
 model Wallet {
     id         String  @id
     userId     String  @unique
-    user       Users   @relation(fields: [userId], references: [id])
+    user       Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
     balance    Float   @default(0)
     currency   String
     paystackId String? // Store Paystack's unique identifier for the user's wallet
@@ -50,7 +50,7 @@ model Wallet {
 model Transaction {
     id          String   @id @unique
     userId      String
-    user        Users    @relation(fields: [userId], references: [id])
+    user        Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
     type        String // 'purchase', 'topup', etc.
     amount      Float
     description String
@@ -78,6 +78,6 @@ model ProductsRating {
     userId String
     rate   Int
 
-    product Products @relation(fields: [id], references: [id])
-    user    Users    @relation(fields: [userId], references: [id])
+    product Products @relation(fields: [id], references: [id], onDelete: Cascade)
+    user    Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -1,3 +1,4 @@
+import { CreateUserType } from "../@types";
 import prisma from "../config/prisma";
 import UserController from "../controller/user";
 
@@ -5,13 +6,6 @@ const userController = new UserController();
 
 interface GetUserType {
   id: string;
-}
-
-interface CreateUserType {
-  id: string;
-  email: string;
-  fullname: string;
-  role: "MERCHANT" | "SUPPLIER" | "BUYER";
 }
 
 const userResolvers = {

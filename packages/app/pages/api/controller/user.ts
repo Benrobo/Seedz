@@ -46,7 +46,7 @@ export default class UserController {
       throw new ServerResponseError("INVALID_FIELDS", (error as any).message);
     }
 
-    const { email, fullname, profileImage, username, role, id } = payload;
+    const { role, id } = payload;
 
     // check if role is valid or not
     const validRole = ["MERCHANT", "SUPPLIER", "BUYER"];
@@ -57,8 +57,8 @@ export default class UserController {
       );
     }
 
-    // check if user with emaiL already exists
-    const userExists = await prisma.users.findMany({ where: { email, role } });
+    // check if user with id already exists
+    const userExists = await prisma.users.findMany({ where: { id } });
 
     if (userExists.length > 0) {
       throw new ServerResponseError(
@@ -72,11 +72,11 @@ export default class UserController {
     await prisma.users.create({
       data: {
         id,
-        username,
-        fullname,
-        email,
+        username: "",
+        fullname: "",
+        email: "",
         role,
-        image: profileImage,
+        image: "",
         wallet: {
           create: {
             id: genID(20),

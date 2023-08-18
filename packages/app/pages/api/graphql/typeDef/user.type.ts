@@ -13,12 +13,8 @@ const userTypeDef = gql`
   # Beginning of  QUE/MUT Fields
   #   Create user mutation
   input CreateUserMut {
-    email: String!
-    fullname: String!
-    username: String!
     role: String!
     id: String!
-    profileImage: String!
   }
 
   type CreateUserMutOutput {

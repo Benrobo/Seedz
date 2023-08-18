@@ -16,7 +16,7 @@ enum Role {
 model Users {
     id              String            @id @unique
     email           String            @unique
-    usernames       String
+    username        String
     fullname        String
     role            Role              @default(BUYER)
     deliveryAddress DeliveryAddress[]

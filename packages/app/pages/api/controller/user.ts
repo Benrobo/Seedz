@@ -1,28 +1,19 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import BaseController from "./base";
+import sendResponse from "../helper/sendResponse";
 
-export default class UserController extends BaseController {
-  constructor() {
-    super();
-  }
+export default class UserController {
+  constructor() {}
 
-  async getUser(req: NextApiRequest, res: NextApiResponse) {
-    const userdata = [
+  async getUser(id: string, ...rest: any) {
+    console.log({ rest });
+    return sendResponse(
       {
-        name: "john doe",
-        email: "john@mail.com",
+        email: "welcome",
       },
-      {
-        name: "brain tracy",
-        email: "brian@mail.com",
-      },
-    ];
-    this.success(
-      res,
-      "--user/fake-data",
-      "user data fetched successfully",
-      200,
-      userdata
+      false,
+      "welcome back"
     );
+    throw Error("User not found");
   }
+
+  async getUsers() {}
 }

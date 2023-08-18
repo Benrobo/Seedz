@@ -5,6 +5,7 @@ import { Webhook } from "svix";
 import ServerResponseError from "./helper/errorHandler";
 import prisma from "./config/prisma";
 import { genID } from "./helper";
+import memecache from "memory-cache";
 
 const secret = process.env.CLERK_WH_SECRET as string;
 
@@ -18,38 +19,38 @@ export default async function webhookHandler(
       const data = whPayload.data;
       const event = (data as any).type;
 
-      console.log(data);
+      //   console.log(data);
+      console.log(
+        (data as any).data.unsafe_metadata,
+        (data as any).data.public_metadata,
+        (data as any).data.private_metadata
+      );
 
       if (event === "user.created") {
-        // check if user with id or email doesn't exists
-        const user = await prisma.users.findMany({
-          where: {
-            id: (data as any).data.id,
+        const ipAddr = req.headers["x-real-ip"] || req.connection.remoteAddress;
+        const userRole = memecache.get(ipAddr);
+
+        if (userRole === null) {
+          console.log("Failed to save user data.");
+          return;
+        }
+
+        // update user data
+        const whUserData = (data as any).data;
+        await prisma.users.update({
+          where: { id: whUserData.id },
+          data: {
+            id: whUserData.id,
+            image: whUserData.image_url,
+            username:
+              whUserData.username ??
+              whUserData.first_name.toLowerCase() + genID(4),
+            fullname: `${whUserData.first_name} ${whUserData.last_name ?? ""}`,
+            email: whUserData?.email_addresses[0]?.email_address,
+            role: userRole,
           },
         });
-
-        if (user.length > 0) {
-          // user exists already having only one id in table
-          // update user data
-          const whUserData = (data as any).data;
-          await prisma.users.update({
-            where: { id: whUserData.id },
-            data: {
-              id: whUserData.id,
-              image: whUserData.image_url,
-              username:
-                whUserData.username ??
-                whUserData.first_name.toLowerCase() + genID(4),
-              fullname: `${whUserData.first_name} ${
-                whUserData.last_name ?? ""
-              }`,
-              email: whUserData.email,
-            },
-          });
-          return;
-        } else {
-          console.log("Webhook: unkown user attempting");
-        }
+        return;
       }
     }
   } else {

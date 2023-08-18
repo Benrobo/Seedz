@@ -15,9 +15,9 @@ const paymentResolvers = {
   Mutation: {
     fundWallet: async (
       parent: any,
-      args: any,
+      { payload }: { payload: FundWalletType },
       context: any,
-      { payload }: { payload: FundWalletType }
+      info: any
     ) => {
       // isAuthenticated middleware
       isAuthenticated(context);

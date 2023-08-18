@@ -1,10 +1,25 @@
+import ImageTag from "@/components/Image";
 import { SignIn } from "@clerk/nextjs";
 import React from "react";
 
 function Login() {
   return (
-    <div className="w-full h-[100vh] flex flex-col items-center justify-center">
-      <SignIn signUpUrl="/auth/signup" />
+    <div className="w-full h-[100vh] bg-green-700 flex flex-col items-center justify-center px-[4em] ">
+      <div className="w-full h-[100vh] flex flex-col items-center justify-center">
+        <div className="w-full h-auto flex items-center justify-center">
+          <div className="w-auto flex items-center justify-center">
+            <ImageTag
+              src="/assets/img/logo/leaf-logo.svg"
+              className="w-[70px] h-[70px] bg-white-100 p-1 scale-[.85] shadow-xl rounded-[50%]  "
+              alt="seedz"
+            />
+            <span className="N-EB text-[30px] text-white-100">Seedz</span>
+          </div>
+        </div>
+        <br />
+        <br />
+        <SignIn signUpUrl="/auth/signup" />
+      </div>
     </div>
   );
 }

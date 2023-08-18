@@ -2,24 +2,13 @@ import gql from "graphql-tag";
 
 const userTypeDef = gql`
   type Query {
-    getUser(id: String!): UserResponse
-    getUsers: UserResponse
+    getUser(id: String!): User
+    getUsers: [User]
   }
 
-  #   Response Fields
-  type UserResponse {
-    error: Boolean
-    message: String
-    data: User
-  }
+  # Beginning of  Response Fields
 
-  #   union ResponseData = User || null
-
-  #   type UserResponse {
-  # error: Boolean
-  # message: String
-  #     data: ResponseData
-  #   }
+  #   End of Response Fields
 
   enum Role {
     MERCHANT

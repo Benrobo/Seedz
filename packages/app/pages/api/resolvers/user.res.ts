@@ -11,7 +11,7 @@ interface GetUserType {
 const userResolvers = {
   Query: {
     getUser: wrapResolver(async (_: any, { id }: GetUserType) =>
-      userController.getUser(id, _)
+      userController.getUser(id)
     ),
     getUsers: async () => userController.getUsers(),
   },

@@ -12,11 +12,31 @@ export default class UserController {
   }
 
   async getUser(id: string) {
-    throw Error("User not found");
+    const userById = await prisma.users.findFirst({
+      where: { id: id },
+      include: {
+        wallet: true,
+        transactions: true,
+        deliveryAddress: true,
+        ratings: true,
+      },
+    });
+    if (userById === null) {
+      throw new ServerResponseError("NO_USER_FOUND", "user not found");
+    }
+
+    return userById;
   }
 
   async getUsers() {
-    const allUsers = await prisma.users.findMany();
+    const allUsers = await prisma.users.findMany({
+      include: {
+        wallet: true,
+        transactions: true,
+        deliveryAddress: true,
+        ratings: true,
+      },
+    });
     return allUsers;
   }
 

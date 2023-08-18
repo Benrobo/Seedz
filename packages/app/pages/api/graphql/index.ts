@@ -1,7 +1,7 @@
 import { ApolloServer } from "@apollo/server";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
-import combinedTypeDef from "../typeDef";
-import userResolvers from "../resolvers/user.res";
+import combinedTypeDef from "./typeDef";
+import userResolvers from "./resolvers/user.res";
 import ServerResponseError from "../helper/errorHandler";
 import { GraphQLError } from "graphql";
 

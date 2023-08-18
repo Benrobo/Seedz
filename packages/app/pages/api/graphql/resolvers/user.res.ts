@@ -1,6 +1,6 @@
-import { CreateUserType } from "../@types";
-import prisma from "../config/prisma";
-import UserController from "../controller/user";
+import { CreateUserType } from "../../@types";
+import prisma from "../../config/prisma";
+import UserController from "../../controller/user";
 
 const userController = new UserController();
 

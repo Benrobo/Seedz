@@ -82,7 +82,6 @@ export default class UserController {
             id: genID(20),
             currency: defaultCurrency,
             balance: 0,
-            paystackId: null,
           },
         },
       },

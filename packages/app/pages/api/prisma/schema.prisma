@@ -38,13 +38,11 @@ model DeliveryAddress {
 }
 
 model Wallet {
-    id         String  @id
-    userId     String  @unique
-    user       Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    balance    Float   @default(0)
-    currency   String
-    paystackId String? // Store Paystack's unique identifier for the user's wallet
-    // Add other fields relevant to wallet management, such as transaction history, etc.
+    id       String @id
+    userId   String @unique
+    user     Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    balance  Float  @default(0)
+    currency String
 }
 
 model Transaction {

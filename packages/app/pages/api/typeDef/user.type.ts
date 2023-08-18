@@ -6,9 +6,24 @@ const userTypeDef = gql`
     getUsers: [User]
   }
 
-  # Beginning of  Response Fields
+  type Mutation {
+    createUser(payload: CreateUserMut!): CreateUserMutOutput
+  }
 
-  #   End of Response Fields
+  # Beginning of  QUE/MUT Fields
+  #   Create user mutation
+  input CreateUserMut {
+    email: String!
+    fullname: String!
+    role: String!
+    id: String!
+  }
+
+  type CreateUserMutOutput {
+    success: Boolean
+  }
+
+  #   End of QUE/MUT Fields
 
   enum Role {
     MERCHANT

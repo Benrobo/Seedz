@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dbPush": "npx prisma db push"
+  },
+  "prisma": {
+    "schema": "./pages/api/prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^4.13.0",

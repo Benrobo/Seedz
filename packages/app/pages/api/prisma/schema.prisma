@@ -1,17 +1,71 @@
-
 generator client {
     provider = "prisma-client-js"
 }
 
 datasource db {
-    provider     = "postgresql"
-    url          = env("DATABASE_URL")
-    
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
-  
+
+enum Role {
+    MERCHANT
+    SUPPLIER
+    BUYER
+}
+
 model Users {
-    id              String   @id
-    emailVerified   Boolean? @default(false)
-    accountVerified Boolean? @default(false)
-    email           String   @unique
+    id              String            @id @unique
+    email           String            @unique
+    usernames       String
+    fullname        String
+    role            Role              @default(BUYER)
+    deliveryAddress DeliveryAddress[]
+    transactions    Transaction[]
+    ratings         ProductsRating[]
+}
+
+model DeliveryAddress {
+    id         String @id
+    userId     String
+    user       Users  @relation(fields: [userId], references: [id])
+    street     String
+    city       String
+    state      String
+    postalCode String
+    country    String
+}
+
+model Transaction {
+    id          String   @id @unique
+    userId      String
+    user        Users    @relation(fields: [userId], references: [id])
+    type        String // 'purchase', 'topup', etc.
+    amount      Float
+    description String
+    createdAt   DateTime @default(now())
+}
+
+// I Plan to store AI Assistant responses in client localstorage
+model Products {
+    id               String           @id
+    userId           String
+    name             String
+    description      String
+    quantity         Int
+    price            Int
+    currency         String
+    type             String // 'farm_produce', 'farm_machinery'
+    availableForRent Boolean
+    rentingPrice     Int
+    images           String[]
+    ratings          ProductsRating[]
+}
+
+model ProductsRating {
+    id     String @id
+    userId String
+    rate   Int
+
+    product Products @relation(fields: [id], references: [id])
+    user    Users    @relation(fields: [userId], references: [id])
 }

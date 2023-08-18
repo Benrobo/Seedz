@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4000" height="2000" viewBox="0 0 4000 2000" fill="none">
+<g clip-path="url(#clip0_255_643)">
+<path d="M0 0H4000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M0 500H4000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M0 1000H4000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M0 1500H4000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M0 2000H4000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M0 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M500 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M1000 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M1500 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M2000 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M2500 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M3000 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M3500 0V2000" stroke="#2a282d38" stroke-width="10"/>
+<path d="M4000 0V2000" stroke="#2a282d38" stroke-width="10"/>
+</g>
+<defs>
+<clipPath id="clip0_255_643">
+<rect width="4000" height="2000" fill="#2a282d38"/>
+</clipPath>
+</defs>
+</svg>

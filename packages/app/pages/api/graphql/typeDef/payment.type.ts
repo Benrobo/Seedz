@@ -6,16 +6,11 @@ const paymentTypeDef = gql`
   }
 
   type Mutation {
-    fundWallet(payload: WalletTopUp): WalletTopUpRes
+    fundWallet(amount: String!, currency: String!): WalletTopUpRes
   }
 
   # Beginning of  QUE/MUT Fields
   #   Wallet topUp
-  input WalletTopUp {
-    amount: String
-    currency: String
-  }
-
   type WalletTopUpRes {
     authorization_url: String
     access_code: String

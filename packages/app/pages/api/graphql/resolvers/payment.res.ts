@@ -1,4 +1,4 @@
-import { CreateUserType, FundWalletType } from "../../@types";
+import { CreateUserType } from "../../@types";
 import prisma from "../../config/prisma";
 import PaymentController from "../../controller/payment";
 import UserController from "../../controller/user";
@@ -15,13 +15,16 @@ const paymentResolvers = {
   Mutation: {
     fundWallet: async (
       parent: any,
-      { payload }: { payload: FundWalletType },
+      { amount, currency }: { amount: number; currency: string },
       context: any,
       info: any
     ) => {
       // isAuthenticated middleware
       isAuthenticated(context);
-      paymentController.fundWallet(payload, context.user.id);
+      return await paymentController.fundWallet(
+        { amount, currency },
+        context.user.id
+      );
     },
   },
 };

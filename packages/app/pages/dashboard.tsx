@@ -44,7 +44,7 @@ function Dashboard() {
     fundWallet({
       variables: {
         amount: topUpAmount,
-        currency: "NGN2",
+        currency: "NGN",
       },
     });
   };
@@ -84,7 +84,7 @@ function Dashboard() {
 
   return (
     <Layout className="bg-white-105">
-      <MobileLayout activePage="home">
+      <MobileLayout activePage="dashboard">
         {!hasRendered || userQuery.loading === true ? (
           <ChildBlurModal isBlurBg isOpen={true}>
             <div className="w-full flex flex-col items-center justify-center">

@@ -25,6 +25,7 @@ export default async function webhookHandler(
       if (event === "charge.success") {
         const whData = data?.data;
         const traRef = whData?.reference;
+        const traId = whData?.id;
         const creditAmount = whData?.amount / 100;
         const userData = whData?.customer;
         const userMail = userData?.email;
@@ -35,6 +36,21 @@ export default async function webhookHandler(
         if (traVerification.success === false) {
           // ! Send customer email why the transaction failed.
           console.log(traVerification.msg);
+          return;
+        }
+
+        // check if transaction ref exists
+        const transactionExists = await prisma.transactionRef?.findMany({
+          where: {
+            AND: {
+              id: String(traId),
+              ref: traRef,
+            },
+          },
+        });
+
+        if (transactionExists?.length > 0) {
+          console.log(`Duplicate transaction found: user -> [${userMail}] .`);
           return;
         }
 
@@ -50,6 +66,11 @@ export default async function webhookHandler(
           );
           return;
         }
+
+        // store transaction ref
+        await prisma.transactionRef.create({
+          data: { id: String(traId), ref: traRef },
+        });
 
         // credit user wallet
         const totalBalance = (user.wallet?.balance as number) + creditAmount;
@@ -101,7 +122,7 @@ async function verifyPayment(reference: string) {
     result["msg"] = "Something went wrong initializing payment.";
     return result;
   } catch (e: any) {
-    console.log(e.response.data.message ?? e.message);
+    console.log(e?.response?.data?.message ?? e.message);
     console.log(
       `Transaction Verification Failed: ${e.response.data.message ?? e.message}`
     );

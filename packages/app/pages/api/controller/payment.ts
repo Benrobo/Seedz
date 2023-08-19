@@ -20,7 +20,7 @@ export default class PaymentController {
         amount,
         email,
       });
-      const res = req.data;
+      const res = req?.data;
       if (res.status) {
         result["success"] = true;
         result["data"] = res.data;
@@ -67,9 +67,9 @@ export default class PaymentController {
 
     if (result.success === true) {
       return {
-        authorization_url: (result.data as any).authorization_url,
-        access_code: (result.data as any).access_code,
-        reference: (result.data as any).reference,
+        authorization_url: (result?.data as any).authorization_url,
+        access_code: (result?.data as any).access_code,
+        reference: (result?.data as any).reference,
       };
     }
 

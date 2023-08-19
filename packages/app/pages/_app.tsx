@@ -1,4 +1,3 @@
-import "@/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -12,6 +11,10 @@ import ENV from "./api/config/env";
 import { errorLink, httpLink } from "@/helpers/clientError";
 import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
+import { Router } from "next/router";
+import nProgress from "nprogress";
+import "../styles/globals.css";
+import "../styles/nprogress.css";
 
 const publicPages = ["/auth/login", "/auth/signup"];
 const queryClient = new QueryClient();
@@ -21,6 +24,11 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
   link: from([errorLink, httpLink]),
 });
+
+// nprogress loader
+Router.events.on("routeChangeStart", nProgress.start);
+Router.events.on("routeChangeError", nProgress.done);
+Router.events.on("routeChangeComplete", nProgress.done);
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {

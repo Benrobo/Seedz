@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { AddRoleToCache } from "../http";
 import { Spinner } from "@/components/Spinner";
 import toast from "react-hot-toast";
+import handleApolloHttpErrors from "../http/error";
 
 function Signup() {
   const [steps, setSteps] = React.useState(1);
@@ -51,7 +52,7 @@ function Signup() {
   React.useEffect(() => {
     reset();
     if (error) {
-      toast.error(error?.graphQLErrors[0]?.message as string);
+      handleApolloHttpErrors(error);
     } else if (data?.addRoleToCache.success) {
       setSteps(2);
     }

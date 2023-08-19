@@ -79,3 +79,8 @@ model ProductsRating {
     product Products @relation(fields: [id], references: [id], onDelete: Cascade)
     user    Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model TransactionRef {
+    id  String @id
+    ref String
+}

@@ -10,10 +10,6 @@ interface GetUserType {
   id: string;
 }
 
-type AddUserToCacheType = {
-  role: string;
-};
-
 const userResolvers = {
   Query: {
     getUser: async (_: any, { id }: GetUserType) =>
@@ -23,16 +19,15 @@ const userResolvers = {
   Mutation: {
     createUser: async (_: any, { payload }: { payload: CreateUserType }) =>
       await userController.createUser(payload),
-    addUserToCache: async (
+    addRoleToCache: async (
       parent: any,
-      { payload }: { payload: AddUserToCacheType },
+      { role }: { role: string },
       context: any,
       info: any
     ) => {
       const validRoles = ["MERCHANT", "BUYER", "SUPPLIER"];
       const ipAddr =
         context.headers["x-real-ip"] || context.connection.remoteAddress;
-      const role = payload.role;
 
       if (!validRoles.includes(role)) {
         throw new ServerResponseError(

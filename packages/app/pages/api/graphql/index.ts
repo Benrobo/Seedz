@@ -39,7 +39,6 @@ const apolloServer = new ApolloServer({
       };
     }
     if (error instanceof GraphQLError) {
-      const { code } = error.extensions;
       return {
         code: formattedError.extensions.code,
         message: formattedError.message,

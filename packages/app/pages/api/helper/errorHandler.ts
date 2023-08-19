@@ -8,7 +8,7 @@ class ServerResponseError extends Error {
     this.name = "ServerResponseError";
     this.extensions = { code };
 
-    throw new GraphQLError(message, { extensions: { code: code } });
+    throw new GraphQLError(message, { extensions: { code: code, name: code } });
   }
 }
 

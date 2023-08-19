@@ -10,9 +10,11 @@ import { BsBank2 } from "react-icons/bs";
 import { FaTemperatureHigh } from "react-icons/fa";
 import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow } from "react-icons/md";
+import { formatCurrency, formatNumLocale } from "./api/helper";
 
 function Dashboard() {
   const [walletTopup, setWalletTopup] = React.useState(false);
+  const [topUpAmount, setTopUpAmount] = React.useState(0);
 
   return (
     <Layout className="bg-white-105">
@@ -57,7 +59,9 @@ function Dashboard() {
               <p className="text-white-400 ppR text-[14px]">
                 Available Balance
               </p>
-              <h1 className="N-EB text-4xl mt-4 text-dark-100">$900.00</h1>
+              <h1 className="N-EB text-4xl mt-4 text-dark-100">
+                {formatCurrency(10000, "NGN")}
+              </h1>
               <div className="w-full px-[2em] flex items-center justify-between mt-4">
                 <button
                   className="px-6 py-3 rounded-[30px] flex items-center justify-between bg-green-600 text-white-100 ppR"
@@ -90,7 +94,9 @@ function Dashboard() {
           <div className="w-full flex flex-col items-center justify-center">
             <div className="w-full px-[4em] flex flex-col items-center justify-center ">
               <p className="text-white-400 ppR text-[12px] mb-2">Amount</p>
-              <h1 className="text-dark-100 N-EB text-5xl">$100</h1>
+              <h1 className="text-green-705 N-EB text-5xl">
+                {formatCurrency(100, "NGN")}
+              </h1>
             </div>
             <br />
             <div className="px-10 max-w-[400px] flex flex-col items-center justify-center">

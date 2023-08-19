@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
 import prisma from "./config/prisma";
 import { genID } from "./helper";
+import $http from "./config/axios";
 
 const secret = process.env.CLERK_WH_SECRET as string;
 const paystack_secret = process.env.PS_TEST_SEC as string;
@@ -22,7 +23,48 @@ export default async function webhookHandler(
       console.log(data);
 
       if (event === "charge.success") {
-        console.log("successful payment");
+        const whData = data?.data;
+        const traRef = whData?.reference;
+        const creditAmount = whData?.amount / 100;
+        const userData = whData?.customer;
+        const userMail = userData?.email;
+
+        // verify transaction
+        const traVerification = await verifyPayment(traRef);
+
+        if (traVerification.success === false) {
+          // ! Send customer email why the transaction failed.
+          console.log(traVerification.msg);
+          return;
+        }
+
+        // check if this user exists
+        const user = await prisma.users.findFirst({
+          where: { email: userMail },
+          include: { wallet: true },
+        });
+
+        if (user === null || typeof user === "undefined") {
+          console.log(
+            `Failed to credit user wallet, user ${userMail} notfound`
+          );
+          return;
+        }
+
+        // credit user wallet
+        const totalBalance = (user.wallet?.balance as number) + creditAmount;
+
+        await prisma.wallet.update({
+          where: { userId: user.id },
+          data: {
+            balance: totalBalance,
+          },
+        });
+
+        //! Send customer email notification
+        console.log(
+          `Wallet Topped Up with ₦${creditAmount} was successful: [${userMail}]`
+        );
         return;
       }
     }
@@ -42,5 +84,31 @@ function verifyWH(req: NextApiRequest) {
   } catch (e: any) {
     console.log(`Error verifying webhook: ${e.message}`);
     return { data: null, success: false };
+  }
+}
+
+async function verifyPayment(reference: string) {
+  let result = { success: false, msg: null || "" };
+  try {
+    const req = await $http.get(`/transaction/verify/${reference}`);
+    const res = req.data;
+    if (res.status) {
+      result["success"] = true;
+      result["msg"] = res.message;
+      return result;
+    }
+    result["success"] = false;
+    result["msg"] = "Something went wrong initializing payment.";
+    return result;
+  } catch (e: any) {
+    console.log(e.response.data.message ?? e.message);
+    console.log(
+      `Transaction Verification Failed: ${e.response.data.message ?? e.message}`
+    );
+    result["success"] = false;
+    result["msg"] = `Transaction Verification Failed: ${
+      e.response.data.message ?? e.message
+    }`;
+    return result;
   }
 }

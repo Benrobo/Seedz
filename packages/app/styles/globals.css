@@ -61,3 +61,7 @@ body {
   position: absolute;
   /* z-index: -1; */
 }
+
+a {
+  color: #012922;
+}

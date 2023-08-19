@@ -13,6 +13,7 @@
     "schema": "./pages/api/prisma/schema.prisma"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.1",
     "@apollo/server": "^4.9.1",
     "@as-integrations/next": "^2.0.1",
     "@clerk/nextjs": "^4.23.2",
@@ -31,7 +32,9 @@
     "react": "18.2.0",
     "react-blurhash": "^0.3.0",
     "react-dom": "18.2.0",
+    "react-hot-toast": "^2.4.1",
     "react-icons": "^4.7.1",
+    "react-query": "^3.39.3",
     "svix": "^1.8.1",
     "tailwind-merge": "^1.14.0"
   },

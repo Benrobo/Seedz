@@ -19,16 +19,16 @@ export default async function webhookHandler(
       const data = whPayload.data;
       const event = (data as any).type;
 
-      //   console.log(data);
-      console.log(
-        (data as any).data.unsafe_metadata,
-        (data as any).data.public_metadata,
-        (data as any).data.private_metadata
-      );
+      console.log(data);
 
       if (event === "user.created") {
         const ipAddr = req.headers["x-real-ip"] || req.connection.remoteAddress;
-        const userRole = memecache.get(ipAddr);
+        const localIp = ["::ffff:127.0.0.1", "::1"];
+        const userRole = memecache.get(
+          localIp.includes(ipAddr as string) ? "::1" : ipAddr
+        );
+
+        console.log(`Webhook IP: ${ipAddr}`);
 
         if (userRole === null) {
           console.log("Failed to save user data.");
@@ -37,8 +37,17 @@ export default async function webhookHandler(
 
         // update user data
         const whUserData = (data as any).data;
-        await prisma.users.update({
-          where: { id: whUserData.id },
+        const email = whUserData?.email_addresses[0]?.email_address;
+
+        // check if email exists
+        const userExists = await prisma.users.findMany({ where: { email } });
+
+        if (userExists.length > 0) {
+          console.log(`User with this email ${email} already exists`);
+          return;
+        }
+
+        await prisma.users.create({
           data: {
             id: whUserData.id,
             image: whUserData.image_url,
@@ -46,10 +55,21 @@ export default async function webhookHandler(
               whUserData.username ??
               whUserData.first_name.toLowerCase() + genID(4),
             fullname: `${whUserData.first_name} ${whUserData.last_name ?? ""}`,
-            email: whUserData?.email_addresses[0]?.email_address,
+            email,
             role: userRole,
+            wallet: {
+              create: {
+                currency: "NGN",
+                id: genID(20),
+                balance: 0,
+              },
+            },
           },
         });
+
+        memecache.del(localIp.includes(ipAddr as string) ? "::1" : ipAddr);
+
+        console.log(`${email} [${userRole}]: Registered successfully`);
         return;
       }
     }

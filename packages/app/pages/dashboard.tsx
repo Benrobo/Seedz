@@ -3,7 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import Layout, { MobileLayout } from "@/components/Layout";
 import { ChildBlurModal } from "@/components/Modal";
 import withAuth from "@/helpers/withAuth";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import React from "react";
 import { BiCurrentLocation } from "react-icons/bi";
 import { BsBank2 } from "react-icons/bs";
@@ -11,15 +11,28 @@ import { FaTemperatureHigh } from "react-icons/fa";
 import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow } from "react-icons/md";
 import { formatCurrency, formatNumLocale } from "./api/helper";
-import { useMutation } from "@apollo/client";
-import { FundWallet } from "./http";
+import { useMutation, useQuery } from "@apollo/client";
+import { FundWallet, GetUserInfo } from "./http";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
+import { UserType } from "./api/@types";
+import handleApolloHttpErrors from "./http/error";
+import useIsRendered from "@/helpers/useIsRendered";
 
 function Dashboard() {
+  const { userId } = useAuth();
+  const hasRendered = useIsRendered();
   const [walletTopup, setWalletTopup] = React.useState(false);
   const [topUpAmount, setTopUpAmount] = React.useState(0);
   const [fundWallet, { loading, error, data, reset }] = useMutation(FundWallet);
+  const userQuery = useQuery(GetUserInfo, {
+    variables: {
+      userId: userId,
+    },
+    skip: hasRendered ? false : true, // if true, it wont be called.
+    // skip: hasRendered, // if true, it wont be called.
+  });
+  const [userInfo, setUserInfo] = React.useState<UserType>({} as UserType);
 
   const MAX_FUND_AMOUNT = 500;
 
@@ -31,15 +44,17 @@ function Dashboard() {
     fundWallet({
       variables: {
         amount: topUpAmount,
-        currency: "NGN",
+        currency: "NGN2",
       },
     });
   };
 
+  // fundwallet mutation
   React.useEffect(() => {
     reset();
     if (error) {
-      toast.error(error?.graphQLErrors[0]?.message as string);
+      // console.log(data);
+      handleApolloHttpErrors(error);
     } else if (typeof data?.fundWallet.authorization_url !== "undefined") {
       toast.success("Payment Link Created");
       window.open(data.fundWallet.authorization_url, "_blank");
@@ -48,16 +63,38 @@ function Dashboard() {
     }
   }, [data, error]);
 
+  // fetch user info
+  React.useEffect(() => {
+    if (userQuery.error) {
+      // console.log(data);
+      handleApolloHttpErrors(userQuery.error);
+    } else if (typeof userQuery.data?.getUser?.email !== "undefined") {
+      const info = userQuery.data?.getUser;
+      setUserInfo(info);
+    }
+  }, [userQuery.data, userQuery.error]);
+
+  // show a blur modal initially
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="home">
+        {!hasRendered || userQuery.loading === true ? (
+          <ChildBlurModal isBlurBg isOpen={true}>
+            <div className="w-full flex flex-col items-center justify-center">
+              <Spinner color="#012922" />
+            </div>
+          </ChildBlurModal>
+        ) : null}
         <div className="w-full h-[100vh] relative bg-white-100 flex flex-col items-center justify-start overflow-x-hidden ">
           <div className="w-full h-[650px] relative overflow-hidden bg-dark-100 before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg] flex items-start justify-start ">
             <div className="w-full z-[1] flex items-start justify-between px-[2em] px-md:[3em] mt-[4em] ">
               <div className="w-full flex flex-col items-start justify-start">
                 <h1 className="N-EB text-white-200 text-3xl max-w-[250px] ">
                   Welcome To Seedz,{" "}
-                  <span className="text-white-100">Benaiah</span>
+                  <span className="text-white-100">
+                    {userInfo.fullname ?? ""}
+                  </span>
                 </h1>
                 <p className="N-M text-white-300 text-[15px] max-w-[250px] ">
                   Empowering Farmers, Enhancing Productivity
@@ -92,7 +129,7 @@ function Dashboard() {
                 Available Balance
               </p>
               <h1 className="N-EB text-4xl mt-4 text-dark-100">
-                {formatCurrency(10000, "NGN")}
+                {formatCurrency(+userInfo?.wallet?.balance ?? 0, "NGN")}
               </h1>
               <div className="w-full px-[2em] flex items-center justify-between mt-4">
                 <button

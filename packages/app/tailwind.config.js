@@ -39,7 +39,8 @@ module.exports = {
           400: "#05ff82",
           500: "#15eb80",
           600: "rgb(3, 252, 128, .4)",
-          700: "#014f42"
+          700: "#014f42",
+          705: "#012922"
         },
         red: {
           100: "rgb(255, 0, 0, .4)",
@@ -124,11 +125,9 @@ module.exports = {
           200: "#3f4550"
         }
       },
-      fontFamily: {
-        "pp-eb": ["Poppins-ExtraBold"],
-        "pp-rg": ["Poppins-Regular"],
-        "pp-sb": ["Poppins-SemiBold"],
-      },
+      animation: {
+        "spin-fast": "spin .5s linear infinite"
+      }
     },
     fontFamily: {
       "pp-eb": ["Poppins-ExtraBold"],

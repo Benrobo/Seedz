@@ -11,10 +11,40 @@ import { FaTemperatureHigh } from "react-icons/fa";
 import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow } from "react-icons/md";
 import { formatCurrency, formatNumLocale } from "./api/helper";
+import { useMutation } from "@apollo/client";
+import { FundWallet } from "./http";
+import toast from "react-hot-toast";
+import { Spinner } from "@/components/Spinner";
 
 function Dashboard() {
   const [walletTopup, setWalletTopup] = React.useState(false);
   const [topUpAmount, setTopUpAmount] = React.useState(0);
+  const [fundWallet, { loading, error, data, reset }] = useMutation(FundWallet);
+
+  const MAX_FUND_AMOUNT = 500;
+
+  const creditWallet = () => {
+    if (topUpAmount < MAX_FUND_AMOUNT) {
+      toast.error(`amount can't be less than ${MAX_FUND_AMOUNT}`);
+      return;
+    }
+    fundWallet({
+      variables: {
+        amount: topUpAmount,
+        currency: "NGN",
+      },
+    });
+  };
+
+  React.useEffect(() => {
+    reset();
+    if (error) {
+      toast.error(error?.graphQLErrors[0]?.message as string);
+    } else if (typeof data?.fundWallet.authorization_url !== "undefined") {
+      toast.success("Payment Link Created");
+      window.open(data.fundWallet.authorization_url, "_blank");
+    }
+  }, [data, error]);
 
   return (
     <Layout className="bg-white-105">
@@ -95,7 +125,7 @@ function Dashboard() {
             <div className="w-full px-[4em] flex flex-col items-center justify-center ">
               <p className="text-white-400 ppR text-[12px] mb-2">Amount</p>
               <h1 className="text-green-705 N-EB text-5xl">
-                {formatCurrency(100, "NGN")}
+                {formatCurrency(+topUpAmount, "NGN")}
               </h1>
             </div>
             <br />
@@ -104,6 +134,8 @@ function Dashboard() {
                 <input
                   type="number"
                   className="w-full text-center h-[45px] border-none outline-none rounded-none text-dark-100 N-B text-2xl px-4 py-3 "
+                  onChange={(e: any) => setTopUpAmount(e.target.value)}
+                  disabled={loading}
                 />
                 <button className="w-[70px] h-[45px] flex flex-col items-center justify-center text-white-100 bg-dark-300 N-B rounded-r-[10px] rounded-t-[10px] ">
                   <IoCashOutline size={20} />
@@ -111,9 +143,18 @@ function Dashboard() {
               </div>
 
               <br />
-              <button className="w-full px-6 py-4 rounded-[5px] flex items-center justify-center bg-green-700 text-white-100 ppR">
-                <span className="text-[14px] N-B ">Continue</span>{" "}
-                <MdDoubleArrow className="ml-2 text-white-100" />
+              <button
+                className="w-full px-6 py-4 rounded-[5px] flex items-center justify-center bg-green-700 text-white-100 ppR"
+                onClick={creditWallet}
+              >
+                {loading ? (
+                  <Spinner color="#fff" />
+                ) : (
+                  <>
+                    <span className="text-[14px] N-B ">Continue</span>{" "}
+                    <MdDoubleArrow className="ml-2 text-white-100" />
+                  </>
+                )}
               </button>
             </div>
           </div>

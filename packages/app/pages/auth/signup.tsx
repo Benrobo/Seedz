@@ -1,11 +1,22 @@
 import ImageTag from "@/components/Image";
+import withoutAuth from "@/helpers/withoutAuth";
+import { useMutation, useQuery } from "@apollo/client";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import React from "react";
 import { twMerge } from "tailwind-merge";
+import { AddRoleToCache } from "../http";
+import { Spinner } from "@/components/Spinner";
+import toast from "react-hot-toast";
 
-function Login() {
+function Signup() {
   const [steps, setSteps] = React.useState(1);
   const [role, setRole] = React.useState("");
+  const [addRoleToCache, { data, loading, error, reset }] = useMutation(
+    AddRoleToCache,
+    {
+      errorPolicy: "all",
+    }
+  );
 
   const validRoles = [
     { name: "Merchant", icon: "💼", role: "MERCHANT" },
@@ -23,9 +34,28 @@ function Login() {
     if (steps === 2) {
       setSteps(1);
     } else {
-      setSteps(2);
+      if (role.length === 0) {
+        toast.error("Select A Role ");
+        return;
+      }
+      addRoleToCache({
+        variables: {
+          role: role,
+        },
+      });
     }
   };
+
+  // console.log({ error });
+
+  React.useEffect(() => {
+    reset();
+    if (error) {
+      toast.error(error?.graphQLErrors[0]?.message as string);
+    } else if (data?.addRoleToCache.success) {
+      setSteps(2);
+    }
+  }, [data, error]);
 
   return (
     <div className="w-full bg-green-700 flex flex-col items-center justify-center px-[4em] ">
@@ -43,6 +73,11 @@ function Login() {
         <br />
         <br />
         <div className="w-full max-w-[450px] h-[400px] flex-wrap px-[2em] py-[3em] bg-white-100 flex items-center justify-center gap-2 rounded-md">
+          {steps === 1 && (
+            <div className="w-full flex flex-col items-center text-center">
+              <p className="text-dark-100 N-B ">What your Role?</p>
+            </div>
+          )}
           {steps === 1 ? (
             validRoles.map((d) => (
               <button
@@ -68,9 +103,13 @@ function Login() {
               className="w-full bg-green-700 shadow-2xl px-3 py-2 rounded-[30px] flex flex-col items-center justify-center"
               onClick={handlecNextPrevState}
             >
-              <p className="text-white-100 text-1xl N-B ">
-                {steps === 1 ? "Continue" : "Go Back"}
-              </p>
+              {loading ? (
+                <Spinner color="#fff" />
+              ) : (
+                <p className="text-white-100 text-1xl N-B ">
+                  {steps === 1 ? "Continue" : "Go Back"}
+                </p>
+              )}
             </button>
           </div>
         </div>
@@ -79,4 +118,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default withoutAuth(Signup);

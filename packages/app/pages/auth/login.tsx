@@ -1,4 +1,5 @@
 import ImageTag from "@/components/Image";
+import withoutAuth from "@/helpers/withoutAuth";
 import { SignIn } from "@clerk/nextjs";
 import React from "react";
 
@@ -24,4 +25,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default withoutAuth(Login);

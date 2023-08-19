@@ -9,7 +9,7 @@ import { BiCurrentLocation } from "react-icons/bi";
 import { BsBank2 } from "react-icons/bs";
 import { FaTemperatureHigh } from "react-icons/fa";
 import { IoAddOutline, IoCashOutline } from "react-icons/io5";
-import { MdDoubleArrow } from "react-icons/md";
+import { MdDoubleArrow, MdVerified } from "react-icons/md";
 import { formatCurrency, formatNumLocale } from "./api/helper";
 import { useMutation, useQuery } from "@apollo/client";
 import { FundWallet, GetUserInfo } from "./http";
@@ -47,6 +47,12 @@ function Dashboard() {
         currency: "NGN2",
       },
     });
+  };
+
+  const rolebadgeColor = (role: string) => {
+    if (role === "MERCHANT") return "#15eb80";
+    if (role === "BUYER") return "#ff8500";
+    if (role === "MERCHANT") return "#4055e4";
   };
 
   // fundwallet mutation
@@ -102,6 +108,12 @@ function Dashboard() {
               </div>
               <div className="w-auto flex flex-col items-end justify-end">
                 <UserButton afterSignOutUrl="/" />
+                <div className="w-full flex items-center mt-3 justify-center">
+                  <MdVerified color={rolebadgeColor(userInfo.role)} />
+                  <span className="text-white-300 px-2 py-1 flex items-center justify-center rounded-[30px] bg-dark-300 N-B text-[10px] ml-2 ">
+                    {userInfo.role}
+                  </span>
+                </div>
               </div>
             </div>
 

@@ -17,12 +17,13 @@ const withoutAuth = <P extends {}>(
   const Wrapper: React.FC<P> = (props) => {
     const router = useRouter();
     const isLoggedIn = useIsAuth();
+    const { isLoaded } = useAuth();
 
     React.useEffect(() => {
-      if (isLoggedIn) {
+      if (isLoggedIn && isLoaded) {
         router.push("/dashboard");
       }
-    }, []);
+    });
 
     return <WrappedComponent {...props} />;
   };

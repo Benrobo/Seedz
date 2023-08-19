@@ -9,13 +9,13 @@ import useIsAuth from "./useIsAuth";
 const withAuth = <P extends {}>(WrappedComponent: React.ComponentType<P>) => {
   const Wrapper: React.FC<P> = (props) => {
     const router = useRouter();
+    const { isLoaded } = useAuth();
     const isLoggedIn = useIsAuth();
-
     React.useEffect(() => {
-      if (!isLoggedIn) {
+      if (isLoggedIn === false && isLoaded) {
         router.push("/auth/login");
       }
-    }, []);
+    });
 
     return <WrappedComponent {...props} />;
   };

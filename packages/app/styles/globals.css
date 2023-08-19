@@ -23,6 +23,16 @@ body {
   src: url("/assets/font/Nunito-Bold.ttf");
 }
 
+@font-face {
+  font-family: ppM;
+  src: url("/assets/font/Poppins-Medium.ttf");
+}
+
+@font-face {
+  font-family: ppR;
+  src: url("/assets/font/Poppins-Regular.ttf");
+}
+
 .z-up {
   z-index: 100;
 }
@@ -50,6 +60,18 @@ body {
 
 .N-B {
   font-family: Nunito-B;
+}
+
+.ppM {
+  font-family: ppM;
+}
+
+.ppR {
+  font-family: ppR;
+}
+
+.hideScrollBar::-webkit-scrollbar {
+  width: 3px;
 }
 
 .pattern-bg::before {

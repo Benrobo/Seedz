@@ -43,6 +43,8 @@ function Dashboard() {
     } else if (typeof data?.fundWallet.authorization_url !== "undefined") {
       toast.success("Payment Link Created");
       window.open(data.fundWallet.authorization_url, "_blank");
+      setWalletTopup(false);
+      setTopUpAmount(0);
     }
   }, [data, error]);
 

@@ -8,3 +8,13 @@ export const AddRoleToCache = gql`
     }
   }
 `;
+
+export const FundWallet = gql`
+  mutation PaymentMutation($amount: String!, $currency: String!) {
+    fundWallet(amount: $amount, currency: $currency) {
+      access_code
+      authorization_url
+      reference
+    }
+  }
+`;

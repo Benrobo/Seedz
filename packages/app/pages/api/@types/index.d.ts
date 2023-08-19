@@ -4,6 +4,6 @@ export interface CreateUserType {
 }
 
 export interface FundWalletType {
-  amount: string;
+  amount: number;
   currency: string;
 }

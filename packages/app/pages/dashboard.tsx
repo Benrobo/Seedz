@@ -12,6 +12,8 @@ import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow } from "react-icons/md";
 
 function Dashboard() {
+  const [walletTopup, setWalletTopup] = React.useState(false);
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="home">
@@ -57,7 +59,10 @@ function Dashboard() {
               </p>
               <h1 className="N-EB text-4xl mt-4 text-dark-100">$900.00</h1>
               <div className="w-full px-[2em] flex items-center justify-between mt-4">
-                <button className="px-6 py-3 rounded-[30px] flex items-center justify-between bg-green-600 text-white-100 ppR">
+                <button
+                  className="px-6 py-3 rounded-[30px] flex items-center justify-between bg-green-600 text-white-100 ppR"
+                  onClick={() => setWalletTopup(!walletTopup)}
+                >
                   <span className="text-[12px] N-B ">Add Money</span>{" "}
                   <IoAddOutline className="ml-2 text-white-100" />
                 </button>
@@ -77,8 +82,9 @@ function Dashboard() {
         {/* Top up modal */}
         <ChildBlurModal
           isBlurBg
-          isOpen={true}
+          isOpen={walletTopup}
           showCloseIcon
+          onClose={() => setWalletTopup(false)}
           className="bg-white-600"
         >
           <div className="w-full flex flex-col items-center justify-center">

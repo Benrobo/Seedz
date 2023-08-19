@@ -139,6 +139,7 @@ export const ChildBlurModal = ({
               className={
                 "flex flex-col items-center justify-center px-4 py-3 rounded-[10px] transition-all text-white-100 hover:bg-dark-200 hover:text-white-100"
               }
+              onClick={onClose}
             >
               <IoClose />
             </button>

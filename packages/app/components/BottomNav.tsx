@@ -5,8 +5,15 @@ import { FaShoppingCart } from "react-icons/fa";
 import { IoStorefrontSharp } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 
-function BottomNav() {
-  const [activeTab, setActiveTab] = React.useState("home");
+interface BottomNavProp {
+  activePage: string;
+}
+function BottomNav({ activePage }: BottomNavProp) {
+  const [activeTab, setActiveTab] = React.useState(activePage);
+
+  React.useEffect(() => {
+    setActiveTab(activePage);
+  }, [activePage]);
 
   return (
     <div className="w-full h-[80px] absolute bottom-0 px-[1em] py-[10px] z-[100] bg-white-100 drop-shadow-2xl flex items-center justify-between gap-5">

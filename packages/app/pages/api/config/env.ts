@@ -6,7 +6,7 @@ const ENV = {
       : `https://seedz.vercel.app`,
   serverUrl:
     process.env.NODE_ENV === "development"
-      ? "http://localhost:3001/api/graphql"
+      ? "http://localhost:3000/api/graphql"
       : process.env.BACKEND_URL,
 };
 

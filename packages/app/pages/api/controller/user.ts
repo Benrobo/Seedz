@@ -1,4 +1,4 @@
-import { CreateUserType } from "../@types";
+import { CreateUserType } from "../../../@types";
 import prisma from "../config/prisma";
 import ServerResponseError from "../helper/errorHandler";
 import { CreateUserSchema } from "../helper/validator";

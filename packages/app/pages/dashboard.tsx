@@ -15,7 +15,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { FundWallet, GetUserInfo } from "./http";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
-import { UserType } from "./api/@types";
+import { UserType } from "../@types";
 import handleApolloHttpErrors from "./http/error";
 import useIsRendered from "@/helpers/useIsRendered";
 

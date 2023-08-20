@@ -6,16 +6,17 @@ import { GraphQLError } from "graphql";
 import paymentResolvers from "./resolvers/payment.res";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
+import productResolvers from "./resolvers/product.res";
 
 const apolloServer = new ApolloServer({
   typeDefs: combinedTypeDef,
-  resolvers: [userResolvers, paymentResolvers],
+  resolvers: [userResolvers, paymentResolvers, productResolvers],
   formatError: (formattedError: any, error) => {
     // Return a different error message
     console.log(
       `Gql Server Error [${formattedError.extensions.code}]: ${formattedError.message}`
     );
-    const gqlErrorCode = ["GRAPHQL_VALIDATION_FAILED"];
+    const gqlErrorCode = ["GRAPHQL_VALIDATION_FAILED", "BAD_USER_INPUT"];
     const mainServerError = ["INTERNAL_SERVER_ERROR"];
     // gql server error
     if (gqlErrorCode.includes(formattedError.extensions.code)) {

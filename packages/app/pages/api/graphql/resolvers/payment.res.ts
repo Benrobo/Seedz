@@ -1,4 +1,4 @@
-import { CreateUserType } from "../../@types";
+import { CreateUserType } from "../../../../@types";
 import prisma from "../../config/prisma";
 import PaymentController from "../../controller/payment";
 import UserController from "../../controller/user";

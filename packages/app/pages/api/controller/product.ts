@@ -1,11 +1,15 @@
-import { CreateUserType, FundWalletType } from "../../../@types";
+import {
+  ApiAddProductProp,
+  CreateUserType,
+  FundWalletType,
+} from "../../../@types";
 import prisma from "../config/prisma";
 import ServerResponseError from "../helper/errorHandler";
 import { CreateUserSchema, InitPaymentSchema } from "../helper/validator";
 import { genID } from "../helper";
 import $http from "../config/axios";
 
-export default class PaymentController {
+export default class ProductController {
   constructor() {}
 
   private isValidationError(error: any) {
@@ -74,5 +78,9 @@ export default class PaymentController {
     }
 
     throw new ServerResponseError("INIT_PAYMENT_ERROR", result.msg);
+  }
+
+  async addProduct(payload: ApiAddProductProp, userId: string) {
+    //
   }
 }

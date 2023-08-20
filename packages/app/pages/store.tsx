@@ -7,7 +7,7 @@ import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
 import { FaLongArrowAltLeft } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
-import { AddProductInfoType } from "./api/@types";
+import { AddProductInfoType } from "../@types";
 
 function Store() {
   const [addProductModal, setAddProductModal] = React.useState(false);

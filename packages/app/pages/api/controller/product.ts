@@ -1,11 +1,7 @@
-import {
-  ApiAddProductProp,
-  CreateUserType,
-  FundWalletType,
-} from "../../../@types";
+import { ApiAddProductProp, FundWalletType } from "../../../@types";
 import prisma from "../config/prisma";
 import ServerResponseError from "../helper/errorHandler";
-import { CreateUserSchema, InitPaymentSchema } from "../helper/validator";
+import { AddProductSchema, InitPaymentSchema } from "../helper/validator";
 import { genID } from "../helper";
 import $http from "../config/axios";
 
@@ -81,6 +77,19 @@ export default class ProductController {
   }
 
   async addProduct(payload: ApiAddProductProp, userId: string) {
-    //
+    const { error, value } = AddProductSchema.validate(payload);
+    if (this.isValidationError(error)) {
+      throw new ServerResponseError("INVALID_FIELDS", (error as any).message);
+    }
+
+    const {
+      availableForRent,
+      base64Image,
+      category,
+      description,
+      name,
+      price,
+      rentingPrice,
+    } = payload;
   }
 }

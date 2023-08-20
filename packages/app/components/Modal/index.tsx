@@ -132,7 +132,7 @@ export const ChildBlurModal = ({
       )}
       data-name="main-modal"
     >
-      <div className={`${isVisible ? "opacity-100" : "opacity-0"}`}>
+      <div className={`w-full ${isVisible ? "opacity-100" : "opacity-0"}`}>
         {showCloseIcon && (
           <div className="absolute top-3 right-0 p-1 z-[70]">
             <button
@@ -145,7 +145,7 @@ export const ChildBlurModal = ({
             </button>
           </div>
         )}
-        <div className="relative h-full">{children}</div>
+        <div className="relative w-full h-full">{children}</div>
       </div>
     </div>
   );

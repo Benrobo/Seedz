@@ -67,8 +67,15 @@ model Products {
     type             String // 'farm_produce', 'farm_machinery'
     availableForRent Boolean
     rentingPrice     Int
-    images           String[]
+    images           ProductImage?
     ratings          ProductsRating[]
+}
+
+model ProductImage {
+    id      String   @id
+    hash    String   @unique
+    url     String
+    product Products @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model ProductsRating {

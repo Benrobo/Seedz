@@ -23,5 +23,9 @@ export interface UserType {
 
 export interface AddProductInfoType {
   name: string;
-  category: string;
+  category: "farm_produce" | "farm_machinery";
+  price: string;
+  availableForRent: boolean;
+  rentingPrice: string;
+  images: string;
 }

@@ -7,10 +7,12 @@ import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
 import { FaLongArrowAltLeft } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
+import { AddProductInfoType } from "./api/@types";
 
 function Store() {
   const [addProductModal, setAddProductModal] = React.useState(false);
-  const [addProductInfo, setAddProductInfo] = React.useState();
+  const [addProductInfo, setAddProductInfo] =
+    React.useState<AddProductInfoType>({} as AddProductInfoType);
 
   const toggleProductModal = () => setAddProductModal(!addProductModal);
 

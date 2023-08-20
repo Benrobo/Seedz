@@ -6,13 +6,13 @@ const productTypeDef = gql`
   }
 
   type Mutation {
-    addProduct(payload: String!): AddProductMutOutput
+    addProduct(payload: AddProductInput!): AddProductMutOutput
   }
 
   # Beginning of  QUE/MUT Fields
 
   #   Create user mutation
-  input AddProduct {
+  input AddProductInput {
     name: String!
     category: ProductCategory!
     price: String!

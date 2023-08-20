@@ -49,13 +49,12 @@ function Store() {
             </div>
 
             {/* Product component */}
-            <div className="w-full flex flex-col items-start justify-start px-[1em] py-2 mt-5 ">
+            <div className="w-full flex flex-col items-start justify-start px-[1em] py-2 mt-3 ">
               <div className="w-full flex flex-col items-start justify-start">
                 <p className="text-dark-400 text-[14px] ppR flex items-center justify-center gap-2">
                   Add new product image.
                 </p>
-                <br />
-                <div className="w-full flex items-center justify-start gap-5">
+                <div className="w-full mt-2 flex items-center justify-start gap-5">
                   <div className="w-[80px] h-[70px] rounded-md bg-white-400 "></div>
                   <button className="w-[80px] h-[70px] px-3 py-1 rounded-md text-[12px] bg-none border-dashed border-[2px] border-white2-700 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] ">
                     <IoMdAdd size={20} className="text-dark-100" />

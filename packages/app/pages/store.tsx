@@ -9,6 +9,10 @@ import { FaLongArrowAltLeft } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 
 function Store() {
+  const [addProductModal, setAddProductModal] = React.useState(false);
+
+  const toggleProductModal = () => setAddProductModal(!addProductModal);
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="store">
@@ -21,7 +25,10 @@ function Store() {
               placeholder="Search here..."
             />
           </div>
-          <button className="w-[120px] px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] ">
+          <button
+            className="w-[120px] px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] "
+            onClick={toggleProductModal}
+          >
             Add Item
           </button>
         </div>
@@ -32,13 +39,16 @@ function Store() {
 
         <ChildBlurModal
           isBlurBg
-          isOpen={true}
+          isOpen={addProductModal}
           className="bg-white-105 items-start"
         >
           <div className="w-full h-[100vh] flex flex-col items-start justify-start py-4">
             <div className="w-full flex flex-col items-start justify-start border-b-solid border-b-[.5px] border-b-white2-300 px-[1em] py-2 ">
               <p className="text-dark-100 ppM flex items-center justify-center gap-2">
-                <button className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start ">
+                <button
+                  className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start "
+                  onClick={toggleProductModal}
+                >
                   <FaLongArrowAltLeft size={20} />
                 </button>
                 Add new product
@@ -115,7 +125,7 @@ function Store() {
                       placeholder="Product name"
                     ></textarea>
                   </div>
-                  <button className="w-full px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all ">
+                  <button className="w-full mb-5 px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all ">
                     Add Product
                   </button>
                 </div>

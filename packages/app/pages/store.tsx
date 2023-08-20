@@ -10,6 +10,7 @@ import { IoMdAdd } from "react-icons/io";
 
 function Store() {
   const [addProductModal, setAddProductModal] = React.useState(false);
+  const [addProductInfo, setAddProductInfo] = React.useState();
 
   const toggleProductModal = () => setAddProductModal(!addProductModal);
 
@@ -102,16 +103,28 @@ function Store() {
                   </div>
 
                   {/* Only user with role SUPPLIER */}
-                  <div className="w-full flex flex-col items-start justify-start">
-                    <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
-                      Available for rent
-                      <input type="checkbox" name="" className="ml-3" />
-                    </p>
-                    <input
-                      type="number"
-                      className="w-auto mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
-                      placeholder="27"
-                    />
+                  <div className="w-full flex items-start justify-between gap-3">
+                    <div className="w-auto flex flex-col items-start justify-start">
+                      <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
+                        Product price
+                      </p>
+                      <input
+                        type="number"
+                        className="w-[100px] mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
+                        placeholder="200"
+                      />
+                    </div>
+                    <div className="w-auto flex flex-col items-start justify-start">
+                      <p className="text-white-400 text-[14px] ppM flex items-center justify-between gap-2">
+                        Available for rent
+                        <input type="checkbox" name="" className="ml-3" />
+                      </p>
+                      <input
+                        type="number"
+                        className="w-full mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
+                        placeholder="rent price"
+                      />
+                    </div>
                   </div>
 
                   <div className="w-full flex flex-col items-start justify-start">

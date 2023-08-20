@@ -20,3 +20,8 @@ export interface UserType {
     currency: string;
   };
 }
+
+export interface AddProductInfoType {
+  name: string;
+  category: string;
+}

@@ -53,6 +53,7 @@ export const GetAllProducts = gql`
       availableForRent
       rentingPrice
       quantity
+      description
       image {
         url
         hash

@@ -212,6 +212,7 @@ function Store() {
       toast.success(addProductMutationProps.data?.addProduct?.msg);
       setAddProductModal(false);
       resetFormState();
+      getAllProducts();
     }
   }, [addProductMutationProps.data, addProductMutationProps.error]);
 
@@ -233,7 +234,7 @@ function Store() {
 
   return (
     <Layout className="bg-white-105">
-      <MobileLayout activePage="store" className=" overflow-y-hidden">
+      <MobileLayout activePage="store" className="h-[100vh] overflow-y-hidden">
         <div className="w-full h-auto flex items-center justify-center px-[1em] py-3 gap-2 ">
           <div className="w-full border-solid border-[2px] border-white2-400 flex items-center justify-start px-[.8em] rounded-lg ">
             <BiSearch size={20} className="text-white-400" />
@@ -250,7 +251,7 @@ function Store() {
             Add Item
           </button>
         </div>
-        <div className="w-full h-[100vh] flex flex-wrap items-start justify-between gap-3 px-[.4em] mt-5 overflow-y-scroll">
+        <div className="w-full h-[100vh] flex flex-wrap items-start justify-between gap-3 px-[.4em] mt-5 overflow-y-auto">
           {allProductsQuery.loading === false && productErr !== null && (
             <div className="w-full h-full mt-[4em] flex flex-col items-center justify-center">
               <p className="text-dark-200 N-B">An Error Occured</p>
@@ -288,10 +289,13 @@ function Store() {
               </div>
             )
           ) : null}
+          {/* Gap */}
+          <div className="w-full h-[200px] md:h-[200px] "></div>
         </div>
 
-        {/* Add Item Modal */}
+        {/* Selected Product Modal */}
 
+        {/* Add Item Modal */}
         <ChildBlurModal
           isBlurBg
           isOpen={addProductModal}
@@ -531,7 +535,7 @@ function ItemCard({
 
   return (
     <div className="w-full max-w-[150px] h-auto flex flex-col items-center justify-center rounded-md overflow-hidden ">
-      <div className="w-full h-[150px] bg-gray-400 cursor-pointer rounded-md ">
+      <button className="w-full h-[150px] border-none outline-none bg-gray-300 cursor-pointer rounded-md ">
         {hash?.length > 0 && (
           <LazyLoadImg
             alt="product_image"
@@ -540,13 +544,14 @@ function ItemCard({
             className="w-full h-full object-cover rounded-md bg-white-400"
           />
         )}
-      </div>
+      </button>
+      {/*  */}
       <div className="w-full flex flex-col items-start justify-start py-3 px-3">
         <div className="w-full flex items-center justify-between ">
           <p className="text-dark-100 N-B text-[14px] ">{name}</p>
           <div className="w-auto flex items-center justify-center">
             <p className="w-auto flex items-center justify-center">
-              <span className="ppR text-[12px] mr-2 ">4.5</span>
+              <span className="ppR text-[12px] mr-2 ">{avgRating}</span>
             </p>
             <StarRating averageRating={+avgRating} />
           </div>

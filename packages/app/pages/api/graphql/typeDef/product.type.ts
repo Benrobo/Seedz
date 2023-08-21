@@ -7,11 +7,11 @@ const productTypeDef = gql`
 
   type Mutation {
     addProduct(payload: AddProductInput!): AddProductMutOutput
+    productCheckout(payload: ProductCheckoutType!): ProductCheckoutOut
   }
 
   # Beginning of  QUE/MUT Fields
 
-  #   Create user mutation
   input AddProductInput {
     name: String!
     category: ProductCategory!
@@ -31,6 +31,20 @@ const productTypeDef = gql`
   type AddProductMutOutput {
     success: Boolean
     msg: String!
+  }
+
+  input ProductCheckoutType {
+    totalAmount: Int!
+    productQty: [ProductCheckoutQtyType]
+  }
+
+  input ProductCheckoutQtyType {
+    prodId: String!
+    qty: Int!
+  }
+
+  type ProductCheckoutOut {
+    success: Boolean!
   }
 
   enum ProductCategory {

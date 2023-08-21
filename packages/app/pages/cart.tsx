@@ -3,19 +3,19 @@ import Layout, { MobileLayout } from "@/components/Layout";
 import { ChildBlurModal } from "@/components/Modal";
 import { Router, useRouter } from "next/router";
 import React from "react";
-import { IoIosArrowBack } from "react-icons/io";
-import { CurrencySymbol } from "./api/helper";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { CurrencySymbol, formatCurrency } from "./api/helper";
 import { AllProductProp } from "@/@types";
 import withAuth from "@/helpers/withAuth";
 import toast from "react-hot-toast";
+import { MdLocationOn } from "react-icons/md";
 
 function Cart() {
   const router = useRouter();
   const [allCartItems, setAllCartItems] = React.useState(
     [] as AllProductProp[]
   );
-
-  let newCount = 0;
+  const [totalPrice, setTotalPrice] = React.useState(0);
 
   const updateItemQuantity = (
     itId: string,
@@ -70,9 +70,28 @@ function Cart() {
             ? []
             : JSON.parse(window.localStorage.getItem("@seedz_cart") as string);
         setAllCartItems(cartItems);
-      }, 1000);
+      }, 1200);
     }
   }, []);
+
+  React.useEffect(() => {
+    let prices = [] as number[];
+    allCartItems.forEach((item) => {
+      if (item.availableForRent) {
+        prices.push(item.rentingPrice * (item as any).cartQty);
+      }
+      if (!item.availableForRent) {
+        prices.push(item.price * (item as any).cartQty);
+      }
+    });
+    const total = prices.reduce((total, price) => (total += price));
+    setTotalPrice(total);
+  }, [allCartItems]);
+
+  const totalCheckout = `${CurrencySymbol.NGN} ${formatCurrency(
+    totalPrice,
+    CurrencySymbol.NGN
+  )}`;
 
   return (
     <Layout className="bg-white-105">
@@ -119,6 +138,47 @@ function Cart() {
                 </p>
               )}
             </div>
+            <div className="w-full mt-8 flex flex-col items-start justify-start gap-4">
+              <p className="text-dark-100 N-B text-[18px]">Delivery Location</p>
+              <button className="w-full relative flex items-center justify-start gap-5">
+                {true ? (
+                  <>
+                    <MdLocationOn
+                      size={45}
+                      className="p-3 rounded-md text-green-600 bg-white2-200"
+                    />
+                    <div className="w-auto flex flex-col items-start justify-start">
+                      <p className="text-dark-100 N-B text-[14px]">
+                        9 Okey Eze street
+                      </p>
+                      <p className="text-white-400 N-B text-[12px]">
+                        10001, Lagos
+                      </p>
+                      <IoIosArrowForward className="absolute top-2 right-4" />
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-white-400 N-B text-[12px]">
+                    Add delivery address.
+                  </p>
+                )}
+              </button>
+            </div>
+            <br />
+            <div className="w-full mt-8 flex flex-col items-start justify-start gap-4">
+              <p className="text-dark-100 N-B text-[18px]">Order Info</p>
+              <div className="w-full flex items-start justify-between">
+                <p className="text-white-400 N-B text-[14px]">Total</p>
+                <p className="text-dark-100 N-B text-[14px]">{totalCheckout}</p>
+              </div>
+            </div>
+            <br />
+            <button
+              className={`w-full px-3 py-3 text-[13px] rounded-[30px] bg-green-600 text-white-100 ppR flex items-center justify-around`}
+              //   onClick={addProdtoCart}
+            >
+              Checkout ({totalCheckout})
+            </button>
           </div>
         </div>
 

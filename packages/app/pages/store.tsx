@@ -11,7 +11,7 @@ import { AddProductInfoType, AllProductProp } from "../@types";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
 import { encode } from "blurhash";
-import ImageTag, { LazyLoadImg } from "@/components/Image";
+import { LazyLoadImg } from "@/components/Image";
 import axios from "axios";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { AddProduct, GetAllProducts } from "./http";

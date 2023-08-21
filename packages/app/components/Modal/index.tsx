@@ -89,6 +89,7 @@ export const ChildBlurModal = ({
   showCloseIcon,
   onClose,
   fixed,
+  isBlurBg,
   className,
 }: ModalProp) => {
   const [isVisible, setIsVisible] = useState(isOpen);
@@ -125,9 +126,11 @@ export const ChildBlurModal = ({
   return (
     <div
       className={twMerge(
-        `w-full backdrop-blur z-[999] bg-white-500 bg-opacity-75 h-[100vh] ${
+        `w-full ${
+          isBlurBg && "backdrop-blur bg-white-500 bg-opacity-75"
+        } h-[100vh] ${
           fixed ? "fixed" : "absolute"
-        } top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center overflow-y-auto hideScollBar py-5`,
+        } top-0 left-0 right-0 bottom-0 z-[999] flex flex-col items-center justify-center overflow-y-auto hideScollBar py-5`,
         className
       )}
       data-name="main-modal"

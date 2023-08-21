@@ -18,6 +18,7 @@ const productTypeDef = gql`
     price: Int!
     availableForRent: Boolean!
     rentingPrice: Int!
+    quantity: Int!
     image: AddProductImage!
     description: String!
   }

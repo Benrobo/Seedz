@@ -41,11 +41,11 @@ function BottomNavBtn({ active, name, title }: BtnProps) {
     if (typeof window !== "undefined") {
       setInterval(() => {
         const cartItems =
-          window.localStorage.getItem("@seedz_cart") === null
+          window?.localStorage.getItem("@seedz_cart") === null
             ? []
-            : JSON.parse(localStorage.getItem("@seedz_cart") as string);
+            : JSON.parse(window?.localStorage.getItem("@seedz_cart") as string);
         setCartItemsCount(cartItems.length);
-      }, 500);
+      }, 1000);
     }
   }, []);
 

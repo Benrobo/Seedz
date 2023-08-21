@@ -90,8 +90,30 @@ export default class ProductController {
       name,
       price,
       rentingPrice,
+      quantity,
     } = payload;
 
-    // upload to cloudinary
+    await prisma.products.create({
+      data: {
+        id: genID(20),
+        name,
+        type: category,
+        price,
+        availableForRent,
+        rentingPrice,
+        images: {
+          create: {
+            hash: image.hash,
+            url: image.url,
+          },
+        },
+        description,
+        currency: "NGN",
+        userId,
+        quantity,
+      },
+    });
+
+    return { success: true, msg: "Product created successfully." };
   }
 }

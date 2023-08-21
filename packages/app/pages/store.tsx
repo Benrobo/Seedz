@@ -202,6 +202,12 @@ function Store() {
         : JSON.parse(localStorage.getItem("@seedz_cart") as string);
     const restCartItems = cartItems.filter((p) => p.id !== selectedProd.id);
 
+    // check if user selected rent and rent price isn't < 0
+    if (selectedProdPurchaseType === "RENT" && selectedProd.rentingPrice <= 0) {
+      toast.error("Can't add item with empty price.");
+      return;
+    }
+
     const cartData = {
       ...selectedProd,
       purchaseType: selectedProdPurchaseType,

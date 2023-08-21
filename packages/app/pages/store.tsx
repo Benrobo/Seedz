@@ -2,7 +2,7 @@ import Layout, { MobileLayout } from "@/components/Layout";
 import React from "react";
 import { BiSearch } from "react-icons/bi";
 import { CurrencySymbol, formatCurrency, genID } from "./api/helper";
-import { AiFillEdit } from "react-icons/ai";
+import { AiFillEdit, AiOutlineShopping } from "react-icons/ai";
 import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
 import { FaLongArrowAltLeft } from "react-icons/fa";
@@ -194,6 +194,25 @@ function Store() {
     setPreviewiMG("");
   };
 
+  const addProdtoCart = () => {
+    // check if product isn't in cart already
+    const cartItems: AllProductProp[] =
+      localStorage.getItem("@seedz_cart") === null
+        ? []
+        : JSON.parse(localStorage.getItem("@seedz_cart") as string);
+    const restCartItems = cartItems.filter((p) => p.id !== selectedProd.id);
+
+    const cartData = {
+      ...selectedProd,
+      purchaseType: selectedProdPurchaseType,
+    };
+
+    const combData = [cartData, ...restCartItems];
+
+    localStorage.setItem("@seedz_cart", JSON.stringify(combData));
+    toast.success("Added to cart");
+  };
+
   React.useEffect(() => {
     if (previewImg.length > 0) {
       const img = new Image();
@@ -217,6 +236,7 @@ function Store() {
         console.log({ hash });
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewImg]);
 
   React.useEffect(() => {
@@ -229,11 +249,13 @@ function Store() {
       resetFormState();
       getAllProducts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addProductMutationProps.data, addProductMutationProps.error]);
 
   // all products
   React.useEffect(() => {
     getAllProducts(); // this would fetch all products initially and can also be used to refetch it later on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
@@ -420,11 +442,39 @@ function Store() {
               </div>
 
               {/* Add to cart button */}
-              <div className="w-full absolute bottom-0 left-0 bg-white-100 flex items-center justify-end py-5 px-[2em] ">
+              <div className="w-full absolute bottom-0 left-0 bg-white-100 flex items-center justify-end py-5 px-[1.5em] md:px-[4em] ">
                 <button
-                  className={`w-full px-4 py-3 rounded-[30px] bg-green-600 text-white-100 N-B`}
+                  className={`w-full px-3 py-3 text-[13px] rounded-[30px] bg-green-600 text-white-100 ppR flex items-center justify-around`}
+                  onClick={addProdtoCart}
                 >
-                  Add to cart
+                  <span className="flex items-center justify-center">
+                    <AiOutlineShopping className="text-white-100 mr-2" /> Add
+                    item to cart
+                  </span>
+                  <span className="text-white-100">|</span>
+                  <span className="text-white-100">
+                    {selectedProd.availableForRent &&
+                    selectedProd.rentingPrice > 0 &&
+                    selectedProdPurchaseType === "RENT" ? (
+                      CurrencySymbol.NGN
+                    ) : selectedProd.price > 0 &&
+                      selectedProdPurchaseType === "BUY" ? (
+                      CurrencySymbol.NGN
+                    ) : (
+                      <span className="text-center text-[14px] ">N/A</span>
+                    )}
+                    {selectedProd.availableForRent &&
+                    selectedProd.rentingPrice > 0 &&
+                    selectedProdPurchaseType === "RENT"
+                      ? formatCurrency(
+                          selectedProd?.rentingPrice,
+                          CurrencySymbol.NGN
+                        )
+                      : selectedProd.price > 0 &&
+                        selectedProdPurchaseType === "BUY"
+                      ? formatCurrency(selectedProd?.price, CurrencySymbol.NGN)
+                      : ""}
+                  </span>
                 </button>
               </div>
             </div>

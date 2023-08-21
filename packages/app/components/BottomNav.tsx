@@ -35,6 +35,24 @@ interface BtnProps {
 }
 
 function BottomNavBtn({ active, name, title }: BtnProps) {
+  const [cartItemsCount, setCartItemsCount] = React.useState(0);
+
+  setInterval(() => {
+    const cartItems =
+      localStorage.getItem("@seedz_cart") === null
+        ? []
+        : JSON.parse(localStorage.getItem("@seedz_cart") as string);
+    setCartItemsCount(cartItems.length);
+  }, 500);
+
+  React.useEffect(() => {
+    const cartItems =
+      localStorage.getItem("@seedz_cart") === null
+        ? []
+        : JSON.parse(localStorage.getItem("@seedz_cart") as string);
+    setCartItemsCount(cartItems.length);
+  }, []);
+
   function renderIcon() {
     let icon = null;
     if (name === "dashboard") {
@@ -44,7 +62,16 @@ function BottomNavBtn({ active, name, title }: BtnProps) {
       icon = <IoStorefrontSharp size={25} />;
     }
     if (name === "cart") {
-      icon = <FaShoppingCart size={25} />;
+      icon = (
+        <div className="w-auto relative">
+          {cartItemsCount > 0 && (
+            <p className="text-white-100 N-B px-2 py-[2px] flex flex-col items-center justify-center scale-[.75] bg-green-600 rounded-[50%] text-[12px] absolute top-[-14px] right-[-14px] ">
+              {cartItemsCount}
+            </p>
+          )}
+          <FaShoppingCart size={25} />
+        </div>
+      );
     }
     if (name === "profile") {
       icon = <BiSolidUser size={25} />;

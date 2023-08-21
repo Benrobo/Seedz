@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 const productTypeDef = gql`
   type Query {
-    getProducts: Products
+    getProducts: [Products]
   }
 
   type Mutation {
@@ -49,6 +49,7 @@ const productTypeDef = gql`
     role: Role
     deliveryAddress: [DeliveryAddress]
     transactions: [Transaction]
+    products: [Products]
     wallet: Wallet
   }
 
@@ -63,8 +64,9 @@ const productTypeDef = gql`
     type: String
     availableForRent: Boolean
     rentingPrice: Int
-    images: ProductImage
+    image: ProductImage
     ratings: [ProductsRating]
+    user: User
   }
 
   type ProductImage {

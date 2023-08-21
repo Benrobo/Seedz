@@ -20,5 +20,6 @@ export const AddProductSchema = Joi.object({
     url: Joi.string().required(),
     hash: Joi.string().required(),
   }),
+  quantity: Joi.number().required().min(1),
   description: Joi.string().required(),
 });

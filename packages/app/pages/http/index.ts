@@ -34,3 +34,12 @@ export const GetUserInfo = gql`
     }
   }
 `;
+
+export const AddProduct = gql`
+  mutation ProductMutation($productPayload: AddProductInput!) {
+    addProduct(payload: $productPayload) {
+      msg
+      success
+    }
+  }
+`;

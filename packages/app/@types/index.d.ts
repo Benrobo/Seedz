@@ -66,3 +66,11 @@ export interface AllProductProp {
     rate;
   };
 }
+
+export interface ApiProductCheckoutProps {
+  totalAmount: number;
+  productQty: {
+    id: String;
+    qty: number;
+  };
+}

@@ -23,6 +23,7 @@ function Cart() {
   const [totalPrice, setTotalPrice] = React.useState(0);
   const [checkoutPayModal, setCheckoutPayModal] = React.useState(false);
   const [paymentProgress, setPaymentProgress] = React.useState(true);
+  const [progressPercent, setProgressPercent] = React.useState(0);
 
   const updateItemQuantity = (
     itId: string,
@@ -101,8 +102,6 @@ function Cart() {
     totalPrice,
     CurrencySymbol.NGN
   )}`;
-
-  const percentage = 66;
 
   return (
     <Layout className="bg-white-105">

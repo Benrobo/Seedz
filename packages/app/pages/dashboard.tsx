@@ -76,6 +76,16 @@ function Dashboard() {
       handleApolloHttpErrors(userQuery.error);
     } else if (typeof userQuery.data?.getUser?.email !== "undefined") {
       const info = userQuery.data?.getUser;
+      localStorage.setItem(
+        "@userInfo",
+        JSON.stringify({
+          email: info.email,
+          username: info.username,
+          fullname: info.fullname,
+          role: info.role,
+          image: info.image,
+        })
+      );
       setUserInfo(info);
     }
   }, [userQuery.data, userQuery.error]);

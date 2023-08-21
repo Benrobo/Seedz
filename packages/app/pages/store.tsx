@@ -7,17 +7,22 @@ import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
 import { FaLongArrowAltLeft } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
-import { AddProductInfoType } from "../@types";
+import { AddProductInfoType, AllProductProp } from "../@types";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
 import { encode } from "blurhash";
 import ImageTag, { LazyLoadImg } from "@/components/Image";
 import axios from "axios";
-import { useMutation } from "@apollo/client";
-import { AddProduct } from "./http";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { AddProduct, GetAllProducts } from "./http";
 import handleApolloHttpErrors from "./http/error";
+import StarRating from "@/components/StarRating";
+import { BsFillTrashFill } from "react-icons/bs";
+import { Blurhash } from "react-blurhash";
+import { useAuth } from "@clerk/nextjs";
 
 function Store() {
+  const { userId, isLoaded } = useAuth();
   const [addProductModal, setAddProductModal] = React.useState(false);
   const [imgUploading, setImgUploading] = React.useState(false);
   const [previewImg, setPreviewiMG] = React.useState("");
@@ -37,12 +42,17 @@ function Store() {
     rentingPrice: "",
     quantity: 1,
   });
+  const [allProducts, setAllProducts] = React.useState<AllProductProp[]>(
+    [] as AllProductProp[]
+  );
   const [addProductMutation, addProductMutationProps] = useMutation(
     AddProduct,
     {
       errorPolicy: "all",
     }
   );
+  const [getAllProducts, allProductsQuery] = useLazyQuery(GetAllProducts);
+  const [productErr, setProductsErr] = React.useState(null);
 
   const seedzFileInput = React.useRef();
 
@@ -205,9 +215,25 @@ function Store() {
     }
   }, [addProductMutationProps.data, addProductMutationProps.error]);
 
+  // all products
+  React.useEffect(() => {
+    getAllProducts(); // this would fetch all products initially and can also be used to refetch it later on.
+  }, []);
+
+  React.useEffect(() => {
+    if (allProductsQuery.error) {
+      const err = handleApolloHttpErrors(allProductsQuery.error);
+      setProductsErr(err);
+    } else if (allProductsQuery?.data?.getProducts?.length > 0) {
+      const products = allProductsQuery.data?.getProducts;
+      console.log(products);
+      setAllProducts(products);
+    }
+  }, [allProductsQuery.data, allProductsQuery.error]);
+
   return (
     <Layout className="bg-white-105">
-      <MobileLayout activePage="store">
+      <MobileLayout activePage="store" className=" overflow-y-hidden">
         <div className="w-full h-auto flex items-center justify-center px-[1em] py-3 gap-2 ">
           <div className="w-full border-solid border-[2px] border-white2-400 flex items-center justify-start px-[.8em] rounded-lg ">
             <BiSearch size={20} className="text-white-400" />
@@ -224,8 +250,44 @@ function Store() {
             Add Item
           </button>
         </div>
-        <div className="w-full flex flex-wrap items-center justify-between gap-3 px-[1em] mt-5 ">
-          <ItemCard />
+        <div className="w-full h-[100vh] flex flex-wrap items-start justify-between gap-3 px-[.4em] mt-5 overflow-y-scroll">
+          {allProductsQuery.loading === false && productErr !== null && (
+            <div className="w-full h-full mt-[4em] flex flex-col items-center justify-center">
+              <p className="text-dark-200 N-B">An Error Occured</p>
+              <p className="text-white-400 ppR text-[13px] ">
+                {productErr ?? "Something went wrong"}. please try again later
+              </p>
+            </div>
+          )}
+          {allProductsQuery.loading && (
+            <div className="w-full h-full flex flex-col items-center justify-center">
+              <Spinner color="#000" />
+            </div>
+          )}
+          {allProductsQuery.loading === false && isLoaded ? (
+            allProducts.length > 0 ? (
+              allProducts.map((d) => (
+                <ItemCard
+                  key={d?.id}
+                  id={d.id}
+                  imgUrl={d?.image?.url}
+                  hash={d?.image?.hash}
+                  name={d?.name}
+                  price={d?.price}
+                  ratings={d?.ratings?.rate}
+                  userId={(d as any)?.user?.id}
+                  authUserId={userId as string}
+                />
+              ))
+            ) : (
+              <div className="w-full h-full mt-[4em] flex flex-col items-center justify-center">
+                <p className="text-dark-200 N-B">No Products Listed</p>
+                <p className="text-white-400 ppR text-[13px] ">
+                  be the first to sell your product to customers.
+                </p>
+              </div>
+            )
+          ) : null}
         </div>
 
         {/* Add Item Modal */}
@@ -438,20 +500,67 @@ function Store() {
 
 export default withAuth(Store);
 
-function ItemCard() {
+interface ItemCardProps {
+  name: string;
+  ratings: number[];
+  price: number;
+  id: string;
+  hash: string;
+  imgUrl: string;
+  userId: string;
+  authUserId: string;
+}
+
+function ItemCard({
+  name,
+  ratings,
+  price,
+  id,
+  userId,
+  authUserId,
+  hash,
+  imgUrl,
+}: ItemCardProps) {
+  const avgRating =
+    ratings?.length > 0
+      ? (
+          ratings.reduce((acc, rate) => (acc += rate), 0) / ratings.length
+        ).toFixed(2)
+      : 0;
+  const isOwner = userId === authUserId;
+
   return (
-    <div className="w-full max-w-[200px] bg-white-100 shadow-md flex flex-col items-center justify-center rounded-md overflow-hidden">
-      <div className="w-full h-[120px] bg-gray-400 "></div>
+    <div className="w-full max-w-[150px] h-auto flex flex-col items-center justify-center rounded-md overflow-hidden ">
+      <div className="w-full h-[150px] bg-gray-400 cursor-pointer rounded-md ">
+        {hash?.length > 0 && (
+          <LazyLoadImg
+            alt="product_image"
+            src={imgUrl}
+            hash={hash}
+            className="w-full h-full object-cover rounded-md bg-white-400"
+          />
+        )}
+      </div>
       <div className="w-full flex flex-col items-start justify-start py-3 px-3">
-        <p className="text-dark-100 N-B text-[20px] ">Mango</p>
+        <div className="w-full flex items-center justify-between ">
+          <p className="text-dark-100 N-B text-[14px] ">{name}</p>
+          <div className="w-auto flex items-center justify-center">
+            <p className="w-auto flex items-center justify-center">
+              <span className="ppR text-[12px] mr-2 ">4.5</span>
+            </p>
+            <StarRating averageRating={+avgRating} />
+          </div>
+        </div>
         <div className="w-full flex items-center justify-between mt-5">
           <p className="ppM  text-[15px] ">
             <span className="text-white-400">{CurrencySymbol.NGN}</span>
-            <span className="text-dark-100 N-B">{100}</span>
+            <span className="text-dark-100 N-B">{price}</span>
           </p>
-          <button className="w-auto px-3  py-2 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.9] hover:opacity-[1] ">
-            <AiFillEdit size={15} />
-          </button>
+          {isOwner && (
+            <button className="w-auto rounded-md bg-orange-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.9] hover:opacity-[1] ">
+              <BsFillTrashFill size={30} className="p-[8px]" />
+            </button>
+          )}
         </div>
       </div>
     </div>

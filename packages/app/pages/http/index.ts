@@ -43,3 +43,25 @@ export const AddProduct = gql`
     }
   }
 `;
+
+export const GetAllProducts = gql`
+  query ProductQuery {
+    getProducts {
+      id
+      name
+      price
+      availableForRent
+      rentingPrice
+      quantity
+      image {
+        url
+        hash
+      }
+      user {
+        id
+        fullname
+        role
+      }
+    }
+  }
+`;

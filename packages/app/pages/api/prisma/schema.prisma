@@ -73,7 +73,7 @@ model Products {
 
 model ProductImage {
     id      String   @id
-    hash    String   @unique
+    hash    String
     url     String
     product Products @relation(fields: [id], references: [id], onDelete: Cascade)
 }

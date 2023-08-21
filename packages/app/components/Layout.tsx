@@ -26,8 +26,8 @@ export default Layout;
 
 export function MobileLayout({ children, activePage }: LayoutProps) {
   return (
-    <div className="sm:w-full md:max-w-[500px] xl:max-w-[500px] mx-auto relative h-[100vh] overflow-y-auto">
-      <div className="z-upper">{children}</div>
+    <div className="sm:w-full md:max-w-[500px] xl:max-w-[500px] mx-auto relative h-[100vh]  overflow-hidden">
+      <div className="z-upper ">{children}</div>
       <BottomNav activePage={activePage as string} />
     </div>
   );

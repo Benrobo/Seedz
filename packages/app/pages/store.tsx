@@ -13,12 +13,12 @@ import { Spinner } from "@/components/Spinner";
 import { encode } from "blurhash";
 import ImageTag, { LazyLoadImg } from "@/components/Image";
 import axios from "axios";
+import { useMutation } from "@apollo/client";
+import { AddProduct } from "./http";
+import handleApolloHttpErrors from "./http/error";
 
 function Store() {
   const [addProductModal, setAddProductModal] = React.useState(false);
-  const [addProductInfo, setAddProductInfo] =
-    React.useState<AddProductInfoType>({} as AddProductInfoType);
-  const [fileData, setFileData] = React.useState(null);
   const [imgUploading, setImgUploading] = React.useState(false);
   const [previewImg, setPreviewiMG] = React.useState("");
   const [imgData, setImgData] = React.useState({
@@ -27,6 +27,22 @@ function Store() {
     width: 0,
     height: 0,
   });
+  const [availableForRent, setAvailableForRent] = React.useState(false);
+  const [productInfo, setProductInfo] = React.useState<AddProductInfoType>({
+    availableForRent: false,
+    category: "",
+    description: "",
+    name: "",
+    price: 0,
+    rentingPrice: "",
+    quantity: 1,
+  });
+  const [addProductMutation, addProductMutationProps] = useMutation(
+    AddProduct,
+    {
+      errorPolicy: "all",
+    }
+  );
 
   const seedzFileInput = React.useRef();
 
@@ -81,6 +97,12 @@ function Store() {
     }
   };
 
+  const handleControlInp = (e: any) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setProductInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
   //   convert uploaded image to canvas
   const getImageData = (image: any, w: number, h: number) => {
     const canvas = document.createElement("canvas");
@@ -89,6 +111,62 @@ function Store() {
     const context = canvas.getContext("2d");
     context?.drawImage(image, 0, 0);
     return context?.getImageData(0, 0, w, h);
+  };
+
+  //   save product
+  const addProduct = async () => {
+    const { category, description, name, price, quantity, rentingPrice } =
+      productInfo;
+
+    if (!category || !description || !name || !price) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    if (availableForRent && rentingPrice.length === 0) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    const payload = {
+      ...productInfo,
+      availableForRent,
+      rentingPrice: +rentingPrice,
+      image: {
+        hash: imgData.hash,
+        url: imgData.url,
+      },
+    };
+
+    payload["price"] = +price;
+    payload["quantity"] = +quantity;
+
+    addProductMutation({
+      variables: {
+        productPayload: payload,
+      },
+    });
+  };
+
+  //   reset all form state
+  const resetFormState = () => {
+    setImgData({
+      url: "",
+      hash: "",
+      width: 0,
+      height: 0,
+    });
+    setProductInfo({
+      availableForRent: false,
+      category: "",
+      description: "",
+      name: "",
+      price: 0,
+      rentingPrice: "",
+      quantity: 1,
+    });
+    setAvailableForRent(false);
+    setPreviewiMG("");
   };
 
   React.useEffect(() => {
@@ -115,6 +193,17 @@ function Store() {
       };
     }
   }, [previewImg]);
+
+  React.useEffect(() => {
+    addProductMutationProps.reset();
+    if (addProductMutationProps.error) {
+      handleApolloHttpErrors(addProductMutationProps.error);
+    } else if (addProductMutationProps.data?.addProduct?.success) {
+      toast.success(addProductMutationProps.data?.addProduct?.msg);
+      setAddProductModal(false);
+      resetFormState();
+    }
+  }, [addProductMutationProps.data, addProductMutationProps.error]);
 
   return (
     <Layout className="bg-white-105">
@@ -147,16 +236,16 @@ function Store() {
           className="bg-white-105 items-start"
         >
           {/* Upload Image Loading Modal */}
-          {imgUploading && (
+          {imgUploading || addProductMutationProps.loading ? (
             <ChildBlurModal isOpen isBlurBg>
               <div className="w-full h-full flex flex-col items-center justify-center">
                 <Spinner color="#000" />
                 <span className="text-[14px] mt-2 text-dark-100 N-B">
-                  Uploading image...
+                  {addProductMutationProps.loading ? "" : "Uploading image..."}
                 </span>
               </div>
             </ChildBlurModal>
-          )}
+          ) : null}
 
           <div className="w-full h-[100vh] flex flex-col items-start justify-start py-4">
             <div className="w-full flex flex-col items-start justify-start border-b-solid border-b-[.5px] border-b-white2-300 px-[1em] py-2 ">
@@ -181,13 +270,16 @@ function Store() {
                   Add new product image.
                 </p>
                 <div className="w-full mt-2 flex items-center justify-start gap-5">
-                  {/* <div className=" "></div> */}
-                  <LazyLoadImg
-                    alt="product_image"
-                    src={imgData.url}
-                    hash={imgData.hash}
-                    className="w-[80px] h-[70px] rounded-md bg-white-400"
-                  />
+                  <div className="w-[80px] h-[70px] max-w-[70px] rounded-md bg-white-400">
+                    {imgData.hash.length > 0 && (
+                      <LazyLoadImg
+                        alt="product_image"
+                        src={imgData.url}
+                        hash={imgData.hash}
+                        className="w-[80px] h-[70px] rounded-md bg-white-400"
+                      />
+                    )}
+                  </div>
                   <button
                     className="w-[80px] h-[70px] px-3 py-1 rounded-md text-[12px] bg-none border-dashed border-[2px] border-white2-700 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] "
                     id="seedz_file_inp_act"
@@ -203,7 +295,7 @@ function Store() {
                     hidden
                     className=" fixed top-0 right-[-4em] "
                     onChange={handleFileChange}
-                    onClick={(e) => (e.target.value = null)} // fire onchange event if same file where selected.
+                    onClick={(e) => ((e.target as any).value = null)} // fire onchange event if same file where selected.
                     ref={seedzFileInput as any}
                   />
                 </div>
@@ -218,13 +310,32 @@ function Store() {
                       Select product category
                     </p>
                     <select
-                      name=""
+                      name="category"
                       id=""
                       className="w-full mt-2 text-[14px] text-dark-400 bg-white2-300 px-3 py-2 rounded-md ppR"
+                      onChange={handleControlInp}
                     >
                       <option value="">select category</option>
-                      <option value="farm_produce">Farm Produce</option>
-                      <option value="farm_machinery">Farm Machinery</option>
+                      <option
+                        value="FARM_PRODUCE"
+                        defaultValue={
+                          productInfo.category === "FARM_PRODUCE"
+                            ? "FARM_PRODUCE"
+                            : ""
+                        }
+                      >
+                        Farm Produce
+                      </option>
+                      <option
+                        value="FARM_MACHINERY"
+                        defaultValue={
+                          productInfo.category === "FARM_MACHINERY"
+                            ? "FARM_MACHINERY"
+                            : ""
+                        }
+                      >
+                        Farm Machinery
+                      </option>
                     </select>
                   </div>
                   <div className="w-full flex flex-col items-start justify-start">
@@ -233,12 +344,15 @@ function Store() {
                     </p>
                     <input
                       type="text"
+                      name="name"
                       className="w-full bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
                       placeholder="Product name"
+                      onChange={handleControlInp}
+                      defaultValue={productInfo.name}
                     />
                   </div>
 
-                  {/* Only user with role SUPPLIER */}
+                  {/* Only user with role SUPPLIER & BUYER */}
                   <div className="w-full flex items-start justify-between gap-3">
                     <div className="w-auto flex flex-col items-start justify-start">
                       <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
@@ -248,17 +362,46 @@ function Store() {
                         type="number"
                         className="w-[100px] mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
                         placeholder="200"
+                        name="price"
+                        onChange={handleControlInp}
+                        defaultValue={productInfo.price}
+                      />
+                    </div>
+                    <div className="w-auto flex flex-col items-start justify-start">
+                      <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
+                        Quantity
+                      </p>
+                      <input
+                        type="number"
+                        className="w-[100px] mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
+                        placeholder="200"
+                        name="quantity"
+                        onChange={handleControlInp}
+                        defaultValue={productInfo.quantity}
                       />
                     </div>
                     <div className="w-auto flex flex-col items-start justify-start">
                       <p className="text-white-400 text-[14px] ppM flex items-center justify-between gap-2">
                         Available for rent
-                        <input type="checkbox" name="" className="ml-3" />
+                        <input
+                          type="checkbox"
+                          name=""
+                          className="ml-3"
+                          onChange={(e) =>
+                            setAvailableForRent(e.target.checked)
+                          }
+                          checked={availableForRent}
+                        />
                       </p>
                       <input
                         type="number"
                         className="w-full mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
                         placeholder="rent price"
+                        name="rentingPrice"
+                        style={{
+                          visibility: availableForRent ? "visible" : "hidden",
+                        }}
+                        onChange={handleControlInp}
                       />
                     </div>
                   </div>
@@ -272,9 +415,15 @@ function Store() {
                       cols={3}
                       className="w-full bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
                       placeholder="Product name"
+                      name="description"
+                      onChange={handleControlInp}
+                      defaultValue={productInfo.description}
                     ></textarea>
                   </div>
-                  <button className="w-full mb-5 px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all ">
+                  <button
+                    className="w-full mb-5 md:mb-0 px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all "
+                    onClick={addProduct}
+                  >
                     Add Product
                   </button>
                 </div>

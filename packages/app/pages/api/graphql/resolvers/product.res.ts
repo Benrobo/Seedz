@@ -1,4 +1,8 @@
-import { ApiAddProductProp, CreateUserType } from "../../../../@types";
+import {
+  ApiAddProductProp,
+  ApiProductCheckoutProps,
+  CreateUserType,
+} from "../../../../@types";
 import prisma from "../../config/prisma";
 import ProductController from "../../controller/product";
 import ServerResponseError from "../../helper/errorHandler";
@@ -26,6 +30,16 @@ const productResolvers = {
       await notBuyer(context);
 
       return await productController.addProduct(payload, context.user.id);
+    },
+    productCheckout: async (
+      parent: any,
+      { payload }: { payload: ApiProductCheckoutProps },
+      context: any,
+      info: any
+    ) => {
+      isAuthenticated(context);
+
+      return await productController.productCheckout(payload, context.user.id);
     },
   },
 };

@@ -211,6 +211,7 @@ function Store() {
     const cartData = {
       ...selectedProd,
       purchaseType: selectedProdPurchaseType,
+      cartQty: 1,
     };
 
     const combData = [cartData, ...restCartItems];

@@ -24,6 +24,7 @@ model Users {
     transactions    Transaction[]
     ratings         ProductsRating[]
     wallet          Wallet?
+    products        Products[]
 }
 
 model DeliveryAddress {
@@ -57,7 +58,7 @@ model Transaction {
 
 // I Plan to store AI Assistant responses in client localstorage
 model Products {
-    id               String           @id
+    id               String           @id @unique
     userId           String
     name             String
     description      String
@@ -67,8 +68,9 @@ model Products {
     type             String // 'farm_produce', 'farm_machinery'
     availableForRent Boolean
     rentingPrice     Int
-    images           ProductImage?
+    image            ProductImage?
     ratings          ProductsRating[]
+    user             Users?           @relation(fields: [userId], references: [id])
 }
 
 model ProductImage {

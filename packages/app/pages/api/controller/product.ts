@@ -101,7 +101,7 @@ export default class ProductController {
         price,
         availableForRent,
         rentingPrice,
-        images: {
+        image: {
           create: {
             hash: image.hash,
             url: image.url,
@@ -115,5 +115,11 @@ export default class ProductController {
     });
 
     return { success: true, msg: "Product created successfully." };
+  }
+
+  async getProducts() {
+    return await prisma.products.findMany({
+      include: { image: true, ratings: true, user: true },
+    });
   }
 }

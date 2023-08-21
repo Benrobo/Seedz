@@ -23,3 +23,15 @@ export const AddProductSchema = Joi.object({
   quantity: Joi.number().required().min(1),
   description: Joi.string().required(),
 });
+
+export const ProductCheckoutSchema = Joi.object({
+  totalAmount: Joi.number().required(),
+  productQty: Joi.array()
+    .items(
+      Joi.object({
+        prodId: Joi.string().required(),
+        qty: Joi.number().required(),
+      })
+    )
+    .required(),
+});

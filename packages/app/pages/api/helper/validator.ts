@@ -13,9 +13,12 @@ export const InitPaymentSchema = Joi.object({
 export const AddProductSchema = Joi.object({
   name: Joi.string().required(),
   category: Joi.string().required(),
-  price: Joi.string().required(),
+  price: Joi.number().required(),
   availableForRent: Joi.boolean().required(),
-  rentingPrice: Joi.string().required(),
-  base64Image: Joi.string().required(),
+  rentingPrice: Joi.number().required(),
+  image: Joi.object({
+    url: Joi.string().required(),
+    hash: Joi.string().required(),
+  }),
   description: Joi.string().required(),
 });

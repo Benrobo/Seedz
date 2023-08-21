@@ -37,9 +37,12 @@ export interface AddProductInfoType {
 export interface ApiAddProductProp {
   name: string;
   category: "FARM_PRODUCE" | "FARM_MACHINERY";
-  price: string;
+  price: number;
   availableForRent: boolean;
-  rentingPrice: string;
-  base64Image: string;
+  rentingPrice: price;
+  image: {
+    hash: string;
+    url: string;
+  };
   description: string;
 }

@@ -1,20 +1,120 @@
 import Layout, { MobileLayout } from "@/components/Layout";
 import React from "react";
 import { BiSearch } from "react-icons/bi";
-import { CurrencySymbol } from "./api/helper";
+import { CurrencySymbol, genID } from "./api/helper";
 import { AiFillEdit } from "react-icons/ai";
 import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
 import { FaLongArrowAltLeft } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import { AddProductInfoType } from "../@types";
+import toast from "react-hot-toast";
+import { Spinner } from "@/components/Spinner";
+import { encode } from "blurhash";
+import ImageTag, { LazyLoadImg } from "@/components/Image";
+import axios from "axios";
 
 function Store() {
   const [addProductModal, setAddProductModal] = React.useState(false);
   const [addProductInfo, setAddProductInfo] =
     React.useState<AddProductInfoType>({} as AddProductInfoType);
+  const [fileData, setFileData] = React.useState(null);
+  const [imgUploading, setImgUploading] = React.useState(false);
+  const [previewImg, setPreviewiMG] = React.useState("");
+  const [imgData, setImgData] = React.useState({
+    url: "",
+    hash: "",
+    width: 0,
+    height: 0,
+  });
+
+  const seedzFileInput = React.useRef();
 
   const toggleProductModal = () => setAddProductModal(!addProductModal);
+  const handleFileChange = async () => {
+    const formData = new FormData();
+    const fileInp = seedzFileInput.current as any;
+    const file = fileInp.files[0];
+
+    if (typeof file === "undefined") return;
+
+    formData.append("file", file);
+    formData.append("upload_preset", "seedz_media");
+    formData.append("cloud_name", "dmi4vivcw");
+
+    // FormData can't be printed with console.log(formData)
+    if (
+      typeof formData.get("file") === "undefined" ||
+      formData.get("file") === null
+    ) {
+      console.log("No image selected.");
+      return;
+    }
+
+    try {
+      // upload image
+      setImgUploading(true);
+      const res = await axios.post(
+        "https://api.cloudinary.com/v1_1/dmi4vivcw/image/upload",
+        formData
+      );
+      const data = res?.data ?? (res as any)?.response?.data;
+
+      if (typeof data.secure_url !== "undefined") {
+        const imgUrl = data.secure_url;
+        const imgW = data.width;
+        const imgH = data.height;
+        setImgData((prev) => ({
+          ...prev,
+          ["url"]: imgUrl,
+          height: imgH,
+          width: imgW,
+        }));
+        setPreviewiMG(imgUrl);
+      }
+    } catch (e: any) {
+      setImgUploading(false);
+      const err = e?.response?.data.msg ?? `Image couldn't be uploaded.`;
+      console.log(e);
+      console.log(err);
+      toast.error(err);
+    }
+  };
+
+  //   convert uploaded image to canvas
+  const getImageData = (image: any, w: number, h: number) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const context = canvas.getContext("2d");
+    context?.drawImage(image, 0, 0);
+    return context?.getImageData(0, 0, w, h);
+  };
+
+  React.useEffect(() => {
+    if (previewImg.length > 0) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = previewImg;
+      img.onload = () => {
+        const imageData = getImageData(
+          img,
+          imgData.width,
+          imgData.height
+        ) as any;
+        const hash = encode(
+          imageData.data,
+          imageData.width,
+          imageData.height,
+          4,
+          4
+        );
+        setImgData((prev) => ({ ...prev, hash: hash }));
+        setImgUploading(false);
+        console.log({ hash });
+      };
+    }
+  }, [previewImg]);
 
   return (
     <Layout className="bg-white-105">
@@ -38,6 +138,7 @@ function Store() {
         <div className="w-full flex flex-wrap items-center justify-between gap-3 px-[1em] mt-5 ">
           <ItemCard />
         </div>
+
         {/* Add Item Modal */}
 
         <ChildBlurModal
@@ -45,6 +146,18 @@ function Store() {
           isOpen={addProductModal}
           className="bg-white-105 items-start"
         >
+          {/* Upload Image Loading Modal */}
+          {imgUploading && (
+            <ChildBlurModal isOpen isBlurBg>
+              <div className="w-full h-full flex flex-col items-center justify-center">
+                <Spinner color="#000" />
+                <span className="text-[14px] mt-2 text-dark-100 N-B">
+                  Uploading image...
+                </span>
+              </div>
+            </ChildBlurModal>
+          )}
+
           <div className="w-full h-[100vh] flex flex-col items-start justify-start py-4">
             <div className="w-full flex flex-col items-start justify-start border-b-solid border-b-[.5px] border-b-white2-300 px-[1em] py-2 ">
               <p className="text-dark-100 ppM flex items-center justify-center gap-2">
@@ -68,10 +181,31 @@ function Store() {
                   Add new product image.
                 </p>
                 <div className="w-full mt-2 flex items-center justify-start gap-5">
-                  <div className="w-[80px] h-[70px] rounded-md bg-white-400 "></div>
-                  <button className="w-[80px] h-[70px] px-3 py-1 rounded-md text-[12px] bg-none border-dashed border-[2px] border-white2-700 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] ">
+                  {/* <div className=" "></div> */}
+                  <LazyLoadImg
+                    alt="product_image"
+                    src={imgData.url}
+                    hash={imgData.hash}
+                    className="w-[80px] h-[70px] rounded-md bg-white-400"
+                  />
+                  <button
+                    className="w-[80px] h-[70px] px-3 py-1 rounded-md text-[12px] bg-none border-dashed border-[2px] border-white2-700 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] "
+                    id="seedz_file_inp_act"
+                    onClick={() => (seedzFileInput.current as any).click()}
+                  >
                     <IoMdAdd size={20} className="text-dark-100" />
                   </button>
+
+                  {/* hidden file */}
+                  <input
+                    type="file"
+                    id="seedz_file_inp"
+                    hidden
+                    className=" fixed top-0 right-[-4em] "
+                    onChange={handleFileChange}
+                    onClick={(e) => (e.target.value = null)} // fire onchange event if same file where selected.
+                    ref={seedzFileInput as any}
+                  />
                 </div>
 
                 <br />

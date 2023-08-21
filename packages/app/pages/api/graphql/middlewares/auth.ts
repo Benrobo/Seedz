@@ -13,7 +13,7 @@ export function isAuthenticated(req: NextApiRequest) {
 // middleware should be used only for MERCHANT & SUPPLIER
 export async function notBuyer(req: NextApiRequest) {
   const user = (req as any)["user"];
-  const userInfo = await prisma.users.findFirst({ where: { id: user.id } });
+  const userInfo = await prisma.users.findFirst({ where: { id: user?.id } });
   const role = userInfo?.role;
 
   if (role === "BUYER") {

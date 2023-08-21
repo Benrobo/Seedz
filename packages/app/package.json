@@ -21,7 +21,6 @@
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "blurhash": "^2.0.5",
-    "cloudinary": "^1.40.0",
     "eslint": "8.34.0",
     "eslint-config-next": "13.1.6",
     "graphql": "^16.8.0",
@@ -38,6 +37,7 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.7.1",
     "react-query": "^3.39.3",
+    "sharp": "^0.32.5",
     "svix": "^1.8.1",
     "tailwind-merge": "^1.14.0"
   },

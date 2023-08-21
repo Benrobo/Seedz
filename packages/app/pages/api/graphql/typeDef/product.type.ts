@@ -15,11 +15,16 @@ const productTypeDef = gql`
   input AddProductInput {
     name: String!
     category: ProductCategory!
-    price: String!
+    price: Int!
     availableForRent: Boolean!
-    rentingPrice: String!
-    base64Image: String!
+    rentingPrice: Int!
+    image: AddProductImage!
     description: String!
+  }
+
+  input AddProductImage {
+    hash: String!
+    url: String!
   }
 
   type AddProductMutOutput {

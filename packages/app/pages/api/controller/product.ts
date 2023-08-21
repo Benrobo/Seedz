@@ -84,12 +84,14 @@ export default class ProductController {
 
     const {
       availableForRent,
-      base64Image,
+      image,
       category,
       description,
       name,
       price,
       rentingPrice,
     } = payload;
+
+    // upload to cloudinary
   }
 }

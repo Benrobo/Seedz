@@ -1,12 +1,12 @@
 import Layout, { MobileLayout } from "@/components/Layout";
 import React from "react";
 import { BiSearch } from "react-icons/bi";
-import { CurrencySymbol, genID } from "./api/helper";
+import { CurrencySymbol, formatCurrency, genID } from "./api/helper";
 import { AiFillEdit } from "react-icons/ai";
 import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
 import { FaLongArrowAltLeft } from "react-icons/fa";
-import { IoMdAdd } from "react-icons/io";
+import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
 import { AddProductInfoType, AllProductProp } from "../@types";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
@@ -45,6 +45,9 @@ function Store() {
   const [allProducts, setAllProducts] = React.useState<AllProductProp[]>(
     [] as AllProductProp[]
   );
+  const [selectedProd, setSelectedProd] = React.useState<AllProductProp>(
+    {} as AllProductProp
+  );
   const [addProductMutation, addProductMutationProps] = useMutation(
     AddProduct,
     {
@@ -53,6 +56,9 @@ function Store() {
   );
   const [getAllProducts, allProductsQuery] = useLazyQuery(GetAllProducts);
   const [productErr, setProductsErr] = React.useState(null);
+  const [selectedProductModal, setSelectedModal] = React.useState(false);
+  const [selectedProdPurchaseType, setSelectedProdPurchaseType] =
+    React.useState("");
 
   const seedzFileInput = React.useRef();
 
@@ -111,6 +117,15 @@ function Store() {
     const name = e.target.name;
     const value = e.target.value;
     setProductInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProdSelection = (e: any) => {
+    const prodId = e.target.parentElement?.dataset["id"];
+    if (typeof prodId === "undefined") return;
+    const filteredProd = allProducts.filter((p) => p.id === prodId)[0];
+    setSelectedProd(filteredProd);
+    setSelectedModal(!selectedProductModal);
+    setSelectedProdPurchaseType(filteredProd.availableForRent ? "RENT" : "BUY");
   };
 
   //   convert uploaded image to canvas
@@ -232,6 +247,13 @@ function Store() {
     }
   }, [allProductsQuery.data, allProductsQuery.error]);
 
+  const selectedProdRatings =
+    selectedProd?.ratings?.rate.length > 0
+      ? selectedProd?.ratings?.rate
+          .reduce((acc: number, rate: number) => (acc += rate), 0)
+          .toFixed(2)
+      : 0;
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="store" className="h-[100vh] overflow-y-hidden">
@@ -278,6 +300,7 @@ function Store() {
                   ratings={d?.ratings?.rate}
                   userId={(d as any)?.user?.id}
                   authUserId={userId as string}
+                  handleProdSelection={handleProdSelection}
                 />
               ))
             ) : (
@@ -294,6 +317,119 @@ function Store() {
         </div>
 
         {/* Selected Product Modal */}
+        <ChildBlurModal
+          isBlurBg={false}
+          isOpen={selectedProductModal}
+          className="bg-white-100 items-start hideScrollBar"
+        >
+          <div className="w-full h-[100vh] flex flex-col items-start justify-start py-4">
+            <div className="w-full relative flex items-center justify-center px-[1em] ">
+              <button
+                className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start absolute left-3 top-1"
+                onClick={() => setSelectedModal(false)}
+              >
+                <IoIosArrowBack size={20} />
+              </button>
+              <p className="text-dark-100 ppM flex items-center justify-center gap-2">
+                Details
+              </p>
+            </div>
+            <div className="w-full mt-5 px-[1.5em] flex flex-col items-center justify-start">
+              <div className="w-full h-[240px] border-none outline-none bg-gray-300 cursor-pointer rounded-[10px] ">
+                {selectedProd?.image?.hash.length > 0 && (
+                  <LazyLoadImg
+                    alt="product_image"
+                    src={selectedProd?.image?.url}
+                    hash={selectedProd?.image?.hash}
+                    className="w-full h-full object-cover rounded-md bg-white-400"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="w-full h-full mt-5 flex flex-col items-center justify-start px-[1.5em] overflow-y-scroll hideScrollBar ">
+              <div className="w-full mt-4 flex items-center justify-between">
+                <div className="w-auto flex flex-col items-start justify-start">
+                  <p className="text-dark-100 text-2xl N-B">
+                    {selectedProd?.name}
+                  </p>
+                  <p className="text-green-600 text-[14px] N-B">
+                    ({selectedProd?.quantity}) Available in stock.
+                  </p>
+                  <div className="w-auto flex items-center justify-center">
+                    <p className="w-auto flex items-center justify-center">
+                      <span className="N-EB text-white-400 text-[14px] mr-2 ">
+                        {selectedProdRatings}
+                      </span>
+                    </p>
+                    <StarRating averageRating={+selectedProdRatings} />
+                  </div>
+                </div>
+                <div className="w-auto flex flex-col items-start justify-start">
+                  <p className="text-dark-100 text-2xl N-B">
+                    {selectedProd.availableForRent &&
+                    selectedProd.rentingPrice > 0 &&
+                    selectedProdPurchaseType === "RENT" ? (
+                      CurrencySymbol.NGN
+                    ) : selectedProd.price > 0 &&
+                      selectedProdPurchaseType === "BUY" ? (
+                      CurrencySymbol.NGN
+                    ) : (
+                      <span className="text-center text-[14px] ">N/A</span>
+                    )}
+                    {selectedProd.availableForRent &&
+                    selectedProd.rentingPrice > 0 &&
+                    selectedProdPurchaseType === "RENT"
+                      ? formatCurrency(
+                          selectedProd?.rentingPrice,
+                          CurrencySymbol.NGN
+                        )
+                      : selectedProd.price > 0 &&
+                        selectedProdPurchaseType === "BUY"
+                      ? formatCurrency(selectedProd?.price, CurrencySymbol.NGN)
+                      : ""}
+                  </p>
+                  <div className="w-[95px] mt-2 bg-white2-300 rounded-md flex items-center justify-center p-0">
+                    <button
+                      onClick={() => setSelectedProdPurchaseType("BUY")}
+                      className={`${
+                        selectedProdPurchaseType === "BUY"
+                          ? "bg-green-600 text-white-100"
+                          : "text-dark-100 bg-white2-300"
+                      }  text-[15px] px-2 py-1 rounded-md N-B`}
+                    >
+                      Buy
+                    </button>
+                    <button
+                      onClick={() => setSelectedProdPurchaseType("RENT")}
+                      className={`${
+                        selectedProdPurchaseType === "RENT"
+                          ? "bg-green-600 text-white-100"
+                          : "text-dark-100 bg-white2-300"
+                      }  text-[15px] px-2 py-1 rounded-md N-B`}
+                    >
+                      Rent
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full mt-8 flex flex-col items-start justify-start">
+                <p className="text-dark-100 text-1xl N-B">Description</p>
+                <span className="text-white-400 text-[13px] ppR">
+                  {selectedProd?.description}
+                </span>
+              </div>
+
+              {/* Add to cart button */}
+              <div className="w-full absolute bottom-0 left-0 bg-white-100 flex items-center justify-end py-5 px-[2em] ">
+                <button
+                  className={`w-full px-4 py-3 rounded-[30px] bg-green-600 text-white-100 N-B`}
+                >
+                  Add to cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </ChildBlurModal>
 
         {/* Add Item Modal */}
         <ChildBlurModal
@@ -513,6 +649,7 @@ interface ItemCardProps {
   imgUrl: string;
   userId: string;
   authUserId: string;
+  handleProdSelection: (e: any) => void;
 }
 
 function ItemCard({
@@ -524,6 +661,7 @@ function ItemCard({
   authUserId,
   hash,
   imgUrl,
+  handleProdSelection,
 }: ItemCardProps) {
   const avgRating =
     ratings?.length > 0
@@ -535,7 +673,11 @@ function ItemCard({
 
   return (
     <div className="w-full max-w-[150px] h-auto flex flex-col items-center justify-center rounded-md overflow-hidden ">
-      <button className="w-full h-[150px] border-none outline-none bg-gray-300 cursor-pointer rounded-md ">
+      <button
+        className="w-full h-[150px] border-none outline-none bg-gray-300 cursor-pointer rounded-md "
+        data-id={id}
+        onClick={handleProdSelection}
+      >
         {hash?.length > 0 && (
           <LazyLoadImg
             alt="product_image"

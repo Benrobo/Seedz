@@ -9,6 +9,11 @@ import { AllProductProp } from "@/@types";
 import withAuth from "@/helpers/withAuth";
 import toast from "react-hot-toast";
 import { MdLocationOn } from "react-icons/md";
+import {
+  CircularProgressbar,
+  CircularProgressbarWithChildren,
+  buildStyles,
+} from "react-circular-progressbar";
 
 function Cart() {
   const router = useRouter();
@@ -16,6 +21,8 @@ function Cart() {
     [] as AllProductProp[]
   );
   const [totalPrice, setTotalPrice] = React.useState(0);
+  const [checkoutPayModal, setCheckoutPayModal] = React.useState(false);
+  const [paymentProgress, setPaymentProgress] = React.useState(true);
 
   const updateItemQuantity = (
     itId: string,
@@ -94,6 +101,8 @@ function Cart() {
     totalPrice,
     CurrencySymbol.NGN
   )}`;
+
+  const percentage = 66;
 
   return (
     <Layout className="bg-white-105">
@@ -184,12 +193,71 @@ function Cart() {
           </div>
         </div>
 
-        {/* Selected Product Modal */}
+        {/* Payment */}
         <ChildBlurModal
           isBlurBg={false}
-          isOpen={false}
+          isOpen={true}
           className="bg-white-100 items-start hideScrollBar"
-        ></ChildBlurModal>
+        >
+          <div className="w-full h-[100vh] flex flex-col items-center justify-center py-4">
+            {/* payment progress bar */}
+            <div
+              style={{ width: 250, height: 250 }}
+              className="md:w-[220px] w-[200px] "
+            >
+              <ProgressProvider valueStart={0} valueEnd={100}>
+                {(value: any) => (
+                  <CircularProgressbarWithChildren
+                    value={value}
+                    styles={{
+                      // Rotation of path and trail, in number of turns (0-1)
+                      path: {
+                        // Path color
+                        stroke: `#02b151`,
+                        // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                        strokeLinecap: "butt",
+                        // Customize transition animation
+                        transition: "stroke-dashoffset 0.5s ease 0s",
+                        // Rotate the path
+                        transform: "rotate(0.25turn)",
+                        transformOrigin: "center center",
+                        strokeWidth: 2,
+                      },
+
+                      // Customize the circle behind the path, i.e. the "total progress"
+                      trail: {
+                        // Trail color
+                        stroke: "#ffff",
+                        // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                        strokeLinecap: "butt",
+                        // Rotate the trail
+                        transform: "rotate(0.25turn)",
+                        transformOrigin: "center center",
+                      },
+                    }}
+                  >
+                    <div className="w-full flex flex-col items-center justify-center p-1">
+                      <p className="text-dark-100 text-[12px] ppR">Total</p>
+                      <p className="text-dark-100 text-4xl N-B">$200</p>
+                      <p className="text-green-600 text-[12px] ppR">
+                        Secure Payment
+                      </p>
+                    </div>
+                  </CircularProgressbarWithChildren>
+                )}
+              </ProgressProvider>
+              <br />
+              <div className="w-full flex flex-col text-center items-center justify-center">
+                <p className="text-dark-100 text-[15px] N-B">
+                  Payment Processing...
+                </p>
+                <p className="text-white-400 text-[12px] ppR">
+                  Please wait while your transaction is been processed.
+                </p>
+              </div>
+            </div>
+          </div>
+        </ChildBlurModal>
       </MobileLayout>
     </Layout>
   );
@@ -270,3 +338,20 @@ function ItemCard({
     </div>
   );
 }
+
+const ProgressProvider = ({
+  valueStart,
+  valueEnd,
+  children,
+}: {
+  valueStart: number;
+  valueEnd: number;
+  children: Function;
+}) => {
+  const [value, setValue] = React.useState(valueStart);
+  React.useEffect(() => {
+    setValue(valueEnd);
+  }, [valueEnd]);
+
+  return children(value);
+};

@@ -23,14 +23,15 @@ export interface UserType {
 
 export interface AddProductInfoType {
   name: string;
-  category: "FARM_PRODUCE" | "FARM_MACHINERY";
-  price: string;
+  category: "FARM_PRODUCE" | "FARM_MACHINERY" | "";
+  price: number;
   availableForRent: boolean;
   rentingPrice: string;
-  images: {
-    hash: string;
-    base64: string;
-  };
+  quantity: number;
+  // images: {
+  //   hash: string;
+  //   url: string;
+  // };
   description: string;
 }
 
@@ -40,6 +41,7 @@ export interface ApiAddProductProp {
   price: number;
   availableForRent: boolean;
   rentingPrice: price;
+  quantity: number;
   image: {
     hash: string;
     url: string;

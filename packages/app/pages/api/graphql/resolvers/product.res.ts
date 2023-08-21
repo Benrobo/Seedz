@@ -8,7 +8,7 @@ const productController = new ProductController();
 
 const productResolvers = {
   Query: {
-    // getUser: async (_: any, { id }: GetUserType) =>
+    getProducts: async () => await productController.getProducts(),
     //   await userController.getUser(id),
     // getUsers: async () => userController.getUsers(),
   },

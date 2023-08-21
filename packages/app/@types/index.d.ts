@@ -48,3 +48,21 @@ export interface ApiAddProductProp {
   };
   description: string;
 }
+
+export interface AllProductProp {
+  id: string;
+  name: string;
+  category: "FARM_PRODUCE" | "FARM_MACHINERY";
+  price: number;
+  availableForRent: boolean;
+  rentingPrice: price;
+  quantity: number;
+  image: {
+    hash: string;
+    url: string;
+  };
+  description: string;
+  ratings: {
+    rate;
+  };
+}

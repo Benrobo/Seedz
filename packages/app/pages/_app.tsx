@@ -15,6 +15,7 @@ import { Router } from "next/router";
 import nProgress from "nprogress";
 import "../styles/globals.css";
 import "../styles/nprogress.css";
+import "react-circular-progressbar/dist/styles.css";
 
 const publicPages = ["/auth/login", "/auth/signup"];
 const queryClient = new QueryClient();

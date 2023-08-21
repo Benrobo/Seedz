@@ -12,6 +12,7 @@ function handleApolloHttpErrors(error: ApolloError) {
   //   if (errorObj?.code === "GQL_SERVER_ERROR") {
   //   }
   console.log(JSON.stringify(error, null, 2));
+  return errorObj?.message;
 }
 
 export default handleApolloHttpErrors;

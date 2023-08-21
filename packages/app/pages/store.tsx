@@ -142,8 +142,14 @@ function Store() {
   const addProduct = async () => {
     const { category, description, name, price, quantity, rentingPrice } =
       productInfo;
+    console.log({ category, description });
 
-    if (!category || !description || !name || !price) {
+    if (!category || !description || !name) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    if (!availableForRent && price === 0) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -302,7 +308,7 @@ function Store() {
             Add Item
           </button>
         </div>
-        <div className="w-full h-[100vh] flex flex-wrap items-start justify-between gap-3 px-[.4em] mt-5 overflow-y-auto">
+        <div className="w-full h-[100vh] flex flex-wrap items-start justify-between md:justify-start gap-1 px-[1em] md:px-[.4em] mt-5 overflow-y-auto">
           {allProductsQuery.loading === false && productErr !== null && (
             <div className="w-full h-full mt-[4em] flex flex-col items-center justify-center">
               <p className="text-dark-200 N-B">An Error Occured</p>
@@ -330,6 +336,8 @@ function Store() {
                   userId={(d as any)?.user?.id}
                   authUserId={userId as string}
                   handleProdSelection={handleProdSelection}
+                  availableForRent={d?.availableForRent}
+                  rentingPrice={d?.rentingPrice}
                 />
               ))
             ) : (
@@ -613,19 +621,21 @@ function Store() {
 
                   {/* Only user with role SUPPLIER & BUYER */}
                   <div className="w-full flex items-start justify-between gap-3">
-                    <div className="w-auto flex flex-col items-start justify-start">
-                      <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
-                        Product price
-                      </p>
-                      <input
-                        type="number"
-                        className="w-[100px] mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
-                        placeholder="200"
-                        name="price"
-                        onChange={handleControlInp}
-                        defaultValue={productInfo.price}
-                      />
-                    </div>
+                    {!availableForRent && (
+                      <div className="w-auto flex flex-col items-start justify-start">
+                        <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
+                          Product price
+                        </p>
+                        <input
+                          type="number"
+                          className="w-[100px] mt-2 bg-white2-300 border-solid border-[.5px] border-white-400 text-[14px] rounded-md px-3 py-2 outline-none ppR"
+                          placeholder="200"
+                          name="price"
+                          onChange={handleControlInp}
+                          defaultValue={productInfo.price}
+                        />
+                      </div>
+                    )}
                     <div className="w-auto flex flex-col items-start justify-start">
                       <p className="text-white-400 text-[14px] ppM flex items-center justify-center gap-2">
                         Quantity
@@ -701,6 +711,8 @@ interface ItemCardProps {
   name: string;
   ratings: number[];
   price: number;
+  rentingPrice: number;
+  availableForRent: boolean;
   id: string;
   hash: string;
   imgUrl: string;
@@ -718,6 +730,8 @@ function ItemCard({
   authUserId,
   hash,
   imgUrl,
+  availableForRent,
+  rentingPrice,
   handleProdSelection,
 }: ItemCardProps) {
   const avgRating =
@@ -758,7 +772,9 @@ function ItemCard({
         <div className="w-full flex items-center justify-between mt-5">
           <p className="ppM  text-[15px] ">
             <span className="text-white-400">{CurrencySymbol.NGN}</span>
-            <span className="text-dark-100 N-B">{price}</span>
+            <span className="text-dark-100 N-B">
+              {availableForRent ? rentingPrice : price}
+            </span>
           </p>
           {isOwner && (
             <button className="w-auto rounded-md bg-orange-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.9] hover:opacity-[1] ">

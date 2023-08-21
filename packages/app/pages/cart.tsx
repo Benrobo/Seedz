@@ -49,6 +49,7 @@ function Cart() {
         );
         if (confirmRemove) {
           // Remove item logic here
+          localStorage.setItem("@seedz_cart", JSON.stringify(restItems));
         }
       } else {
         newCartQty = newCartQty - 1;
@@ -75,6 +76,7 @@ function Cart() {
   }, []);
 
   React.useEffect(() => {
+    if (allCartItems.length === 0) return;
     let prices = [] as number[];
     allCartItems.forEach((item) => {
       if (item.availableForRent) {
@@ -84,7 +86,7 @@ function Cart() {
         prices.push(item.price * (item as any).cartQty);
       }
     });
-    const total = prices.reduce((total, price) => (total += price));
+    const total = prices?.reduce((total, price) => (total += price));
     setTotalPrice(total);
   }, [allCartItems]);
 

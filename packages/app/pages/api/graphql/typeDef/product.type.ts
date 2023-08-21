@@ -41,6 +41,7 @@ const productTypeDef = gql`
   input ProductCheckoutQtyType {
     prodId: String!
     qty: Int!
+    name: String!
   }
 
   type ProductCheckoutOut {

@@ -69,8 +69,11 @@ export interface AllProductProp {
 
 export interface ApiProductCheckoutProps {
   totalAmount: number;
-  productQty: {
-    id: String;
-    qty: number;
-  };
+  productQty: ProductQty[];
 }
+
+type ProductQty = {
+  prodId: string;
+  qty: number;
+  name: string;
+};

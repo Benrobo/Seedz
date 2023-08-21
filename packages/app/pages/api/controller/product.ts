@@ -13,7 +13,7 @@ import {
 import { genID } from "../helper";
 import $http from "../config/axios";
 
-type productQtyArray = { prodId: string; qty: number }[];
+type productQtyArray = { prodId: string; qty: number; name: string }[];
 export default class ProductController {
   constructor() {}
 
@@ -53,6 +53,25 @@ export default class ProductController {
         id: { in: productIds },
       },
     });
+
+    const foundProductIds = products.map((product) => product.id);
+    const missingProductIds = productIds.filter(
+      (id) => !foundProductIds.includes(id)
+    );
+
+    if (missingProductIds.length > 0) {
+      const missingProductNames = missingProductIds.map((id) => {
+        const productQty = productQtyArray.find((item) => item.prodId === id);
+        return productQty ? productQty?.name : "Unknown Product";
+      });
+
+      throw new ServerResponseError(
+        "PRODUCT_NOT_FOUND",
+        `The following products are not available: ${missingProductNames.join(
+          ", "
+        )}`
+      );
+    }
 
     return products;
   }
@@ -112,6 +131,8 @@ export default class ProductController {
 
     const { totalAmount, productQty } = payload;
 
-    console.log(totalAmount, productQty);
+    const hasSufficientQty = await this.validateProductQuantities(productQty);
+
+    console.log(hasSufficientQty);
   }
 }

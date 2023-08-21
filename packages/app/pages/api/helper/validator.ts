@@ -30,6 +30,7 @@ export const ProductCheckoutSchema = Joi.object({
     .items(
       Joi.object({
         prodId: Joi.string().required(),
+        name: Joi.string().required(),
         qty: Joi.number().required(),
       })
     )

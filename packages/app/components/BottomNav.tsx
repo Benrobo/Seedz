@@ -37,13 +37,17 @@ interface BtnProps {
 function BottomNavBtn({ active, name, title }: BtnProps) {
   const [cartItemsCount, setCartItemsCount] = React.useState(0);
 
-  setInterval(() => {
-    const cartItems =
-      localStorage.getItem("@seedz_cart") === null
-        ? []
-        : JSON.parse(localStorage.getItem("@seedz_cart") as string);
-    setCartItemsCount(cartItems.length);
-  }, 500);
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setInterval(() => {
+        const cartItems =
+          window.localStorage.getItem("@seedz_cart") === null
+            ? []
+            : JSON.parse(localStorage.getItem("@seedz_cart") as string);
+        setCartItemsCount(cartItems.length);
+      }, 500);
+    }
+  }, []);
 
   React.useEffect(() => {
     const cartItems =

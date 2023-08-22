@@ -109,13 +109,13 @@ function Dashboard() {
           <div className="w-full h-[650px] relative overflow-hidden bg-dark-100 before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg] flex items-start justify-start ">
             <div className="w-full z-[1] flex items-start justify-between px-[2em] px-md:[3em] mt-[4em] ">
               <div className="w-full flex flex-col items-start justify-start">
-                <h1 className="N-EB text-white-200 text-3xl max-w-[250px] ">
-                  Welcome To Seedz,{" "}
+                <h1 className="N-EB text-white-200 text-[28px] max-w-[250px] ">
+                  Welcome,{" "}
                   <span className="text-white-100">
                     {userInfo.fullname ?? ""}
                   </span>
                 </h1>
-                <p className="N-M text-white-300 text-[15px] max-w-[250px] ">
+                <p className="N-M text-white-300 text-[13px] max-w-[250px] ">
                   Empowering Farmers, Enhancing Productivity
                 </p>
               </div>
@@ -226,7 +226,7 @@ function Dashboard() {
 
         {/* Assistance */}
         <Assistant
-        isOpen={assistantModal}
+          isOpen={assistantModal}
           openAssistant={() => setAssistantModal(true)}
           closeAssistantModal={() => setAssistantModal(false)}
         />

@@ -7,10 +7,16 @@ import paymentResolvers from "./resolvers/payment.res";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import productResolvers from "./resolvers/product.res";
+import seedzAiResolvers from "./resolvers/assistant.res";
 
 const apolloServer = new ApolloServer({
   typeDefs: combinedTypeDef,
-  resolvers: [userResolvers, paymentResolvers, productResolvers],
+  resolvers: [
+    userResolvers,
+    paymentResolvers,
+    productResolvers,
+    seedzAiResolvers,
+  ],
   formatError: (formattedError: any, error) => {
     // Return a different error message
     console.log(

@@ -4,11 +4,18 @@ import { ChildBlurModal } from "../Modal";
 import { BiCog, BiSend, BiSolidBot } from "react-icons/bi";
 import ImageTag from "../Image";
 import { IoIosArrowBack } from "react-icons/io";
+import { useMutation } from "@apollo/client";
+import { SeedzAssistant } from "@/pages/http";
+import handleApolloHttpErrors from "@/pages/http/error";
 
 const chatLanguages = [
   {
     name: "English",
     code: "en",
+  },
+  {
+    name: "Nigerian Pidgin English",
+    code: "pcm",
   },
 ];
 
@@ -22,6 +29,7 @@ interface ChatMessage {
   message: string;
   type: "bot" | "user";
   lang: string;
+  isError: boolean;
 }
 
 function Assistant({
@@ -32,24 +40,82 @@ function Assistant({
   const [settingsModal, setSettingsModal] = React.useState(false);
   const [selectedLang, setSelectedLang] = React.useState("");
   const [welcomePage, setWelcomePage] = React.useState(false);
-  const [userMessage, setUserMessage] = React.useState([] as ChatMessage[]);
-  const [aiMessages, setAiMessages] = React.useState([]);
+  const [messages, setMessages] = React.useState([] as ChatMessage[]);
+  const [askSeedzAiMut, { loading, error, reset, data }] =
+    useMutation(SeedzAssistant);
+  const [userMsg, setUserMsg] = React.useState("");
 
+  // save messages in local storage
   React.useEffect(() => {
-    const welcomePage =
-      localStorage.getItem("@ai_welcome_page") === null
-        ? null
-        : JSON.parse(localStorage.getItem("@ai_welcome_page") as string);
-
-    setWelcomePage(welcomePage ?? true);
+    if (typeof window !== "undefined") {
+      setInterval(() => {
+        if (messages.length > 0) {
+          localStorage.setItem("@seedz_ai_resp", JSON.stringify(messages));
+        }
+      }, 1000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
-    if (userMessage.length > 0) {
+    if (messages !== null) {
+      setMessages(messages);
+    }
+
+    if (typeof window !== "undefined") {
+      const welcomePage =
+        localStorage.getItem("@ai_welcome_page") === null
+          ? null
+          : JSON.parse(localStorage.getItem("@ai_welcome_page") as string);
+
+      setWelcomePage(welcomePage ?? true);
+
+      // onMount load ai messages from localStorage
+      const messages =
+        localStorage.getItem("@seedz_ai_resp") === null
+          ? null
+          : JSON.parse(localStorage.getItem("@seedz_ai_resp") as string);
+      setMessages(messages);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    if (messages.length > 0) {
       setWelcomePage(false);
       localStorage.setItem("@ai_welcome_page", JSON.stringify(false));
     }
-  }, [userMessage]);
+  }, [messages]);
+
+  React.useEffect(() => {
+    reset();
+    if (error) {
+      const err = handleApolloHttpErrors(error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          isError: true,
+          lang: "en",
+          message: err,
+          type: "bot",
+        },
+      ]);
+    } else if (typeof data?.askSeedzAi.success !== "undefined") {
+      console.log(data);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, error]);
+
+  function sendMessage() {
+    if (userMsg.length === 0) return;
+    const payload = {
+      question: userMsg,
+      lang: selectedLang ?? "en",
+    };
+    askSeedzAiMut({
+      variables: { AiInput: payload },
+    });
+  }
 
   return (
     <>
@@ -80,17 +146,17 @@ function Assistant({
               </button>
             </div>
           )}
-          {welcomePage && <WelcomeScreen setUserMessage={setUserMessage} />}
+          {welcomePage && <WelcomeScreen setMessage={setMessages} />}
           {/* Main chat area */}
           {welcomePage === false && (
             <div className="w-full h-[100vh] flex flex-col items-start justify-start overflow-y-auto hideScrollBar px-4 gap-5">
               {/* Gap */}
               <div className="w-full min-h-[60px] "></div>
 
-              {userMessage.map((m) => (
+              {messages.map((m) => (
                 <div
                   key={m.message.length * Math.random() * 100}
-                  className="w-full"
+                  className="w-full flex flex-col items-start justify-start gap-3"
                 >
                   {m.type === "user" && (
                     <div className="w-full flex flex-col items-end justify-end">
@@ -106,6 +172,21 @@ function Assistant({
                     >
                       <div className="w-full max-w-[300px] h-auto bg-green-600 text-white-100 flex flex-col items-start justify-start px-3 py-3 text-[12px] ppR rounded-md ">
                         {m.message}
+                      </div>
+                    </div>
+                  )}
+                  {loading && (
+                    <div
+                      key={m.message.length * Math.random() * 100}
+                      className="w-full flex flex-col items-start justify-start"
+                    >
+                      <div className="w-auto max-w-[100px] h-auto bg-green-600 text-white-100 flex flex-col items-start justify-start px-3 py-3 text-[12px] ppR rounded-md chatLoading ">
+                        <div className="w-full lds-ellipsis">
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -166,6 +247,13 @@ function Assistant({
                 name=""
                 rows={2}
                 className="w-full max-h-[50px] text-white-200 text-[14px] ppR py-2 resize-none outline-none px-2 border-none bg-transparent text-white"
+                placeholder="Message here..."
+                onChange={(e) => setUserMsg(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "enter") {
+                    sendMessage();
+                  }
+                }}
               ></textarea>
               <button className="w-[60px] h-[50px] bg-green-600 text-white-100 rounded-md  ppM flex flex-col text-center items-center justify-center">
                 <BiSend size={20} />
@@ -181,10 +269,10 @@ function Assistant({
 export default Assistant;
 
 interface WelcomeScreenProps {
-  setUserMessage: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  setMessage: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
-function WelcomeScreen({ setUserMessage }: WelcomeScreenProps) {
+function WelcomeScreen({ setMessage }: WelcomeScreenProps) {
   const exampleMessages = ["How to improve soil condition"];
 
   return (
@@ -210,9 +298,9 @@ function WelcomeScreen({ setUserMessage }: WelcomeScreenProps) {
             key={d}
             className="w-full max-w-[140px] bg-white-300 rounded-md ppM text-[12px] flex text-center px-3 py-3"
             onClick={() =>
-              setUserMessage((prev) => [
+              setMessage((prev) => [
                 ...prev,
-                { message: d, lang: "en", type: "user" },
+                { message: d, lang: "en", type: "user", isError: false },
               ])
             }
           >

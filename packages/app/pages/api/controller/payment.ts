@@ -4,6 +4,7 @@ import ServerResponseError from "../helper/errorHandler";
 import { CreateUserSchema, InitPaymentSchema } from "../helper/validator";
 import { genID } from "../helper";
 import $http from "../config/axios";
+import { Console } from "console";
 
 export default class PaymentController {
   constructor() {}
@@ -32,14 +33,14 @@ export default class PaymentController {
       result["msg"] = "Something went wrong initializing payment.";
       return result;
     } catch (e: any) {
-      console.log(e.response.data.message ?? e.message);
+      console.log(e?.response?.data?.message ?? e.message);
       console.log(
-        `Error initializing payment: ${e.response.data.message ?? e.message}`
+        `Error initializing payment: ${e?.response?.data?.message ?? e.message}`
       );
       result["success"] = false;
       result["data"] = null;
       result["msg"] = `Error initializing payment: ${
-        e.response.data.message ?? e.message
+        e?.response?.data?.message ?? e.message
       }`;
       return result;
     }
@@ -60,6 +61,7 @@ export default class PaymentController {
 
     // init payment
     const user = await prisma.users.findFirst({ where: { id: userId } });
+
     const result = await this.initPsPayment(
       Number(amount * 100),
       user?.email as string

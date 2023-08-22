@@ -18,6 +18,7 @@ import { Spinner } from "@/components/Spinner";
 import { UserType } from "../@types";
 import handleApolloHttpErrors from "./http/error";
 import useIsRendered from "@/helpers/useIsRendered";
+import Assistant from "@/components/Assistant";
 
 function Dashboard() {
   const { userId } = useAuth();
@@ -33,6 +34,7 @@ function Dashboard() {
     // skip: hasRendered, // if true, it wont be called.
   });
   const [userInfo, setUserInfo] = React.useState<UserType>({} as UserType);
+  const [assistantModal, setAssistantModal] = React.useState(false);
 
   const MAX_FUND_AMOUNT = 500;
 
@@ -67,6 +69,7 @@ function Dashboard() {
       setWalletTopup(false);
       setTopUpAmount(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, error]);
 
   // fetch user info
@@ -93,8 +96,8 @@ function Dashboard() {
   // show a blur modal initially
 
   return (
-    <Layout className="bg-white-105">
-      <MobileLayout activePage="dashboard">
+    <Layout className="bg-white-105 overflow-y-hidden">
+      <MobileLayout activePage="dashboard" className="overflow-hidden">
         {!hasRendered || userQuery.loading === true ? (
           <ChildBlurModal isBlurBg isOpen={true}>
             <div className="w-full flex flex-col items-center justify-center">
@@ -169,7 +172,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <main className="w-full h-full z-[100] max-h-full hideScrollBar overflow-y-scroll ">
+          <main className="w-full h-full z-[100] max-h-full hideScrollBar overflow-y-hidden ">
             {/* some other component here */}
           </main>
         </div>
@@ -220,6 +223,13 @@ function Dashboard() {
             </div>
           </div>
         </ChildBlurModal>
+
+        {/* Assistance */}
+        <Assistant
+        isOpen={assistantModal}
+          openAssistant={() => setAssistantModal(true)}
+          closeAssistantModal={() => setAssistantModal(false)}
+        />
       </MobileLayout>
     </Layout>
   );

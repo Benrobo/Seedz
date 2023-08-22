@@ -76,4 +76,5 @@ type ProductQty = {
   prodId: string;
   qty: number;
   name: string;
+  // amount: number;
 };

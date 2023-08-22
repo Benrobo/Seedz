@@ -66,3 +66,11 @@ export const GetAllProducts = gql`
     }
   }
 `;
+
+export const ProductCheckout = gql`
+  mutation ProductCheckout($productCheckoutPayload: ProductCheckoutType!) {
+    productCheckout(payload: $productCheckoutPayload) {
+      success
+    }
+  }
+`;

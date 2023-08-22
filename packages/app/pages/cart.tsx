@@ -1,9 +1,13 @@
-import { LazyLoadImg } from "@/components/Image";
+import ImageTag, { LazyLoadImg } from "@/components/Image";
 import Layout, { MobileLayout } from "@/components/Layout";
 import { ChildBlurModal } from "@/components/Modal";
 import { Router, useRouter } from "next/router";
 import React from "react";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import {
+  IoIosArrowBack,
+  IoIosArrowForward,
+  IoIosCloseCircle,
+} from "react-icons/io";
 import { CurrencySymbol, formatCurrency } from "./api/helper";
 import { AllProductProp } from "@/@types";
 import withAuth from "@/helpers/withAuth";
@@ -14,6 +18,11 @@ import {
   CircularProgressbarWithChildren,
   buildStyles,
 } from "react-circular-progressbar";
+import { useMutation } from "@apollo/client";
+import { ProductCheckout } from "./http";
+import handleApolloHttpErrors from "./http/error";
+import { IoClose } from "react-icons/io5";
+import { BsCheckCircleFill } from "react-icons/bs";
 
 function Cart() {
   const router = useRouter();
@@ -22,8 +31,12 @@ function Cart() {
   );
   const [totalPrice, setTotalPrice] = React.useState(0);
   const [checkoutPayModal, setCheckoutPayModal] = React.useState(false);
-  const [paymentProgress, setPaymentProgress] = React.useState(true);
-  const [progressPercent, setProgressPercent] = React.useState(0);
+  const [paymentProgress, setPaymentProgress] = React.useState(false);
+  const [prodCheckoutMutation, prodCheckoutMutProps] =
+    useMutation(ProductCheckout);
+  const [checkoutError, setCheckoutError] = React.useState(null);
+  const [progressBarPercents, setProgressBarPercents] = React.useState(0);
+  const [checkoutStatusScreen, setCheckoutStatusScreen] = React.useState(false);
 
   const updateItemQuantity = (
     itId: string,
@@ -71,6 +84,31 @@ function Cart() {
     console.log({ cartQty: newCartQty, name: filteredCartItem.name });
   };
 
+  const handleProductCheckout = () => {
+    let checkoutPayload: any[] = [];
+    allCartItems.map((d) => {
+      checkoutPayload.push({
+        prodId: d?.id,
+        qty: (d as any)?.cartQty, // this property isn't in the type yet
+        name: d?.name,
+      });
+    });
+
+    const productCheckoutPayload = {
+      productQty: checkoutPayload,
+      totalAmount: totalPrice,
+    };
+
+    setCheckoutPayModal(true);
+    setPaymentProgress(true);
+
+    prodCheckoutMutation({
+      variables: {
+        productCheckoutPayload,
+      },
+    });
+  };
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       setInterval(() => {
@@ -79,7 +117,7 @@ function Cart() {
             ? []
             : JSON.parse(window.localStorage.getItem("@seedz_cart") as string);
         setAllCartItems(cartItems);
-      }, 1200);
+      }, 500);
     }
   }, []);
 
@@ -98,10 +136,56 @@ function Cart() {
     setTotalPrice(total);
   }, [allCartItems]);
 
+  // effect to control progress bar
+  React.useEffect(() => {
+    if (paymentProgress) {
+      let count = 0;
+      const interval = setInterval(() => {
+        if (prodCheckoutMutProps.loading === true) {
+          setProgressBarPercents((count += 10));
+        } else {
+          const finalCount = 100 - progressBarPercents;
+          setProgressBarPercents(finalCount);
+          clearInterval(interval);
+          setTimeout(() => {
+            setPaymentProgress(false);
+            setCheckoutStatusScreen(true);
+          }, 1000);
+        }
+      }, 100);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prodCheckoutMutProps.data, prodCheckoutMutProps.error]);
+
+  //
+  React.useEffect(() => {
+    prodCheckoutMutProps.reset();
+    if (prodCheckoutMutProps.error) {
+      const err = handleApolloHttpErrors(prodCheckoutMutProps.error);
+      setCheckoutError(err);
+    } else if (
+      typeof prodCheckoutMutProps?.data?.productCheckout?.success !==
+      "undefined"
+    ) {
+      setCheckoutError(null);
+      // delete localstorage cart
+      localStorage.removeItem("@seedz_cart");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prodCheckoutMutProps.data, prodCheckoutMutProps.error]);
+
   const totalCheckout = `${CurrencySymbol.NGN} ${formatCurrency(
     totalPrice,
     CurrencySymbol.NGN
   )}`;
+
+  const resetCheckoutState = () => {
+    setCheckoutPayModal(false);
+    setCheckoutStatusScreen(false);
+    setProgressBarPercents(0);
+    setCheckoutError(null);
+    router.push("/cart");
+  };
 
   return (
     <Layout className="bg-white-105">
@@ -136,6 +220,8 @@ function Cart() {
                       hash={d?.image?.hash}
                       name={d?.name}
                       price={d?.price}
+                      forRent={d?.availableForRent}
+                      rentPrice={d?.rentingPrice}
                       ratings={d?.ratings?.rate}
                       quantity={d?.quantity}
                       cartQty={(d as any)?.cartQty}
@@ -148,113 +234,179 @@ function Cart() {
                 </p>
               )}
             </div>
-            <div className="w-full mt-8 flex flex-col items-start justify-start gap-4">
-              <p className="text-dark-100 N-B text-[18px]">Delivery Location</p>
-              <button className="w-full relative flex items-center justify-start gap-5">
-                {true ? (
-                  <>
-                    <MdLocationOn
-                      size={45}
-                      className="p-3 rounded-md text-green-600 bg-white2-200"
-                    />
-                    <div className="w-auto flex flex-col items-start justify-start">
-                      <p className="text-dark-100 N-B text-[14px]">
-                        9 Okey Eze street
-                      </p>
-                      <p className="text-white-400 N-B text-[12px]">
-                        10001, Lagos
-                      </p>
-                      <IoIosArrowForward className="absolute top-2 right-4" />
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-white-400 N-B text-[12px]">
-                    Add delivery address.
+            {allCartItems.length > 0 && (
+              <>
+                <div className="w-full mt-8 flex flex-col items-start justify-start gap-4">
+                  <p className="text-dark-100 N-B text-[18px]">
+                    Delivery Location
                   </p>
-                )}
-              </button>
-            </div>
-            <br />
-            <div className="w-full mt-8 flex flex-col items-start justify-start gap-4">
-              <p className="text-dark-100 N-B text-[18px]">Order Info</p>
-              <div className="w-full flex items-start justify-between">
-                <p className="text-white-400 N-B text-[14px]">Total</p>
-                <p className="text-dark-100 N-B text-[14px]">{totalCheckout}</p>
-              </div>
-            </div>
-            <br />
-            <button
-              className={`w-full px-3 py-3 text-[13px] rounded-[30px] bg-green-600 text-white-100 ppR flex items-center justify-around`}
-              //   onClick={addProdtoCart}
-            >
-              Checkout ({totalCheckout})
-            </button>
+                  <button className="w-full relative flex items-center justify-start gap-5">
+                    {true ? (
+                      <>
+                        <MdLocationOn
+                          size={45}
+                          className="p-3 rounded-md text-green-600 bg-white2-200"
+                        />
+                        <div className="w-auto flex flex-col items-start justify-start">
+                          <p className="text-dark-100 N-B text-[14px]">
+                            9 Okey Eze street
+                          </p>
+                          <p className="text-white-400 N-B text-[12px]">
+                            10001, Lagos
+                          </p>
+                          <IoIosArrowForward className="absolute top-2 right-4" />
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-white-400 N-B text-[12px]">
+                        Add delivery address.
+                      </p>
+                    )}
+                  </button>
+                </div>
+                <br />
+                <div className="w-full mt-8 flex flex-col items-start justify-start gap-4">
+                  <p className="text-dark-100 N-B text-[18px]">Order Info</p>
+                  <div className="w-full flex items-start justify-between">
+                    <p className="text-white-400 N-B text-[14px]">Total</p>
+                    <p className="text-dark-100 N-B text-[14px]">
+                      {totalCheckout}
+                    </p>
+                  </div>
+                </div>
+                <br />
+                <button
+                  className={`w-full px-3 py-3 text-[13px] rounded-[30px] bg-green-600 text-white-100 ppR flex items-center justify-around`}
+                  onClick={handleProductCheckout}
+                >
+                  Checkout ({totalCheckout})
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Payment */}
         <ChildBlurModal
           isBlurBg={false}
-          isOpen={true}
+          isOpen={checkoutPayModal}
+          showCloseIcon={true}
+          onClose={resetCheckoutState}
           className="bg-white-100 items-start hideScrollBar"
         >
+          {/* Logo */}
+          <div className="w-full relative mt-[4em] flex flex-col items-center justify-center">
+            <div className="w-auto flex items-center justify-center">
+              <ImageTag
+                src="/assets/img/logo/leaf-logo.svg"
+                className="w-[30px] h-[30px] bg-white-100 p-1 scale-[.85] shadow-xl rounded-[50%]  "
+                alt="seedz"
+              />
+              <span className="N-EB ml-1 mt-1 text-[15px] text-green-600">
+                Seedz
+              </span>
+            </div>
+          </div>
           <div className="w-full h-[100vh] flex flex-col items-center justify-center py-4">
             {/* payment progress bar */}
-            <div
-              style={{ width: 250, height: 250 }}
-              className="md:w-[220px] w-[200px] "
-            >
-              <ProgressProvider valueStart={0} valueEnd={100}>
-                {(value: any) => (
-                  <CircularProgressbarWithChildren
-                    value={value}
-                    styles={{
-                      // Rotation of path and trail, in number of turns (0-1)
-                      path: {
-                        // Path color
-                        stroke: `#02b151`,
-                        // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                        strokeLinecap: "butt",
-                        // Customize transition animation
-                        transition: "stroke-dashoffset 0.5s ease 0s",
-                        // Rotate the path
-                        transform: "rotate(0.25turn)",
-                        transformOrigin: "center center",
-                        strokeWidth: 2,
-                      },
+            {paymentProgress && (
+              <div
+                style={{ width: 250, height: 250 }}
+                className="md:w-[220px] w-[200px] "
+              >
+                <ProgressProvider valueStart={0} valueEnd={progressBarPercents}>
+                  {(value: any) => (
+                    <CircularProgressbarWithChildren
+                      value={value}
+                      styles={{
+                        // Rotation of path and trail, in number of turns (0-1)
+                        path: {
+                          // Path color
+                          stroke: `#02b151`,
+                          // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                          strokeLinecap: "butt",
+                          // Customize transition animation
+                          transition: "stroke-dashoffset 0.5s ease 0s",
+                          // Rotate the path
+                          transform: "rotate(0.25turn)",
+                          transformOrigin: "center center",
+                          strokeWidth: 2,
+                          borderRadius: 30,
+                        },
 
-                      // Customize the circle behind the path, i.e. the "total progress"
-                      trail: {
-                        // Trail color
-                        stroke: "#ffff",
-                        // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                        strokeLinecap: "butt",
-                        // Rotate the trail
-                        transform: "rotate(0.25turn)",
-                        transformOrigin: "center center",
-                      },
-                    }}
-                  >
-                    <div className="w-full flex flex-col items-center justify-center p-1">
-                      <p className="text-dark-100 text-[12px] ppR">Total</p>
-                      <p className="text-dark-100 text-4xl N-B">$200</p>
-                      <p className="text-green-600 text-[12px] ppR">
-                        Secure Payment
-                      </p>
-                    </div>
-                  </CircularProgressbarWithChildren>
-                )}
-              </ProgressProvider>
-              <br />
-              <div className="w-full flex flex-col text-center items-center justify-center">
-                <p className="text-dark-100 text-[15px] N-B">
-                  Payment Processing...
-                </p>
-                <p className="text-white-400 text-[12px] ppR">
-                  Please wait while your transaction is been processed.
-                </p>
+                        // Customize the circle behind the path, i.e. the "total progress"
+                        trail: {
+                          // Trail color
+                          stroke: "#ffff",
+                          // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                          strokeLinecap: "butt",
+                          // Rotate the trail
+                          transform: "rotate(0.25turn)",
+                          transformOrigin: "center center",
+                          borderRadius: 30,
+                        },
+                      }}
+                    >
+                      <div className="w-full flex flex-col items-center justify-center p-1">
+                        <p className="text-dark-100 text-[12px] ppR">Total</p>
+                        <p className="text-dark-100 text-4xl N-B">
+                          {totalCheckout}
+                        </p>
+                        <p className="text-green-600 text-[12px] ppR">
+                          Secure Payment
+                        </p>
+                      </div>
+                    </CircularProgressbarWithChildren>
+                  )}
+                </ProgressProvider>
+                <br />
+                <div className="w-full flex flex-col text-center items-center justify-center">
+                  <p className="text-dark-100 text-[15px] N-B">
+                    Payment Processing...
+                  </p>
+                  <p className="text-white-400 text-[12px] ppR">
+                    Please wait while your transaction is been processed.
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Payment Success | Failure Screen */}
+            {checkoutStatusScreen && (
+              <div className="w-full flex flex-col items-center justify-center py-4">
+                <div className="w-full min-h-[10em] flex flex-col items-center justify-center  ">
+                  {checkoutError === null ? (
+                    <BsCheckCircleFill className="text-5xl text-green-600" />
+                  ) : (
+                    <IoIosCloseCircle className="text-5xl text-red-300" />
+                  )}
+                </div>
+                <div className="w-full min-h-[20em] flex flex-col items-center justify-center">
+                  <p className="text-dark-100 text-[12px] mb-5 ppR">
+                    Total amount
+                  </p>
+                  <p className="text-dark-100 text-5xl N-B">{totalCheckout}</p>
+                  <br />
+                  <br />
+                  <p className="text-dark-100 text-[15px] N-B">
+                    {checkoutError === null
+                      ? "Payment Successful"
+                      : "Payment Failed"}
+                  </p>
+                  <p className="text-white-400 text-[12px] ppR">
+                    {checkoutError}
+                  </p>
+                  <div className="w-full min-h-[50%] flex flex-col items-center justify-end px-[4em] ">
+                    <button
+                      className={`w-full px-3 py-3 text-[13px] rounded-[30px] bg-green-600 text-white-100 ppR flex items-center justify-around`}
+                      onClick={resetCheckoutState}
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ChildBlurModal>
       </MobileLayout>
@@ -273,6 +425,8 @@ interface ItemCardProps {
   imgUrl: string;
   quantity: number;
   cartQty: number;
+  forRent: boolean;
+  rentPrice: number;
   updateQuantity: (
     itemId: string,
     quantity: number,
@@ -289,6 +443,8 @@ function ItemCard({
   imgUrl,
   quantity,
   cartQty,
+  forRent,
+  rentPrice,
   updateQuantity,
 }: ItemCardProps) {
   return (
@@ -315,7 +471,9 @@ function ItemCard({
         <div className="w-auto flex items-center justify-between mt-5">
           <p className="N-B text-[15px] ">
             <span className="text-white-400">{CurrencySymbol.NGN}</span>
-            <span className="text-dark-100 N-B">{price}</span>
+            <span className="text-dark-100 N-B">
+              {forRent ? rentPrice : price}
+            </span>
           </p>
           <div className="ml-4 flex items-center justify-between gap-3">
             <button

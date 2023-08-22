@@ -14,7 +14,7 @@ import { encode } from "blurhash";
 import { LazyLoadImg } from "@/components/Image";
 import axios from "axios";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import { AddProduct, GetAllProducts } from "./http";
+import { AddProduct, GetAllProducts, ProductCheckout } from "./http";
 import handleApolloHttpErrors from "./http/error";
 import StarRating from "@/components/StarRating";
 import { BsFillTrashFill } from "react-icons/bs";
@@ -142,22 +142,21 @@ function Store() {
   const addProduct = async () => {
     const { category, description, name, price, quantity, rentingPrice } =
       productInfo;
-    console.log({ category, description });
 
-    if (!category || !description || !name) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
+    // if (!category || !description || !name) {
+    //   toast.error("Please fill in all required fields.");
+    //   return;
+    // }
 
-    if (!availableForRent && price === 0) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
+    // if (!availableForRent && price === 0) {
+    //   toast.error("Please fill in all required fields.");
+    //   return;
+    // }
 
-    if (availableForRent && rentingPrice.length === 0) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
+    // if (availableForRent && rentingPrice.length === 0) {
+    //   toast.error("Please fill in all required fields.");
+    //   return;
+    // }
 
     const payload = {
       ...productInfo,
@@ -171,6 +170,13 @@ function Store() {
 
     payload["price"] = +price;
     payload["quantity"] = +quantity;
+
+    if (availableForRent && price > 0) {
+      payload["price"] = 0;
+    } else {
+      payload["price"] = +price;
+      payload["rentingPrice"] = 0;
+    }
 
     addProductMutation({
       variables: {

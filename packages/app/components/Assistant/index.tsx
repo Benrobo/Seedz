@@ -18,6 +18,12 @@ interface AssistantProps {
   isOpen: boolean;
 }
 
+interface ChatMessage {
+  message: string;
+  type: "bot" | "user";
+  lang: string;
+}
+
 function Assistant({
   closeAssistantModal,
   openAssistant,
@@ -25,6 +31,25 @@ function Assistant({
 }: AssistantProps) {
   const [settingsModal, setSettingsModal] = React.useState(false);
   const [selectedLang, setSelectedLang] = React.useState("");
+  const [welcomePage, setWelcomePage] = React.useState(false);
+  const [userMessage, setUserMessage] = React.useState([] as ChatMessage[]);
+  const [aiMessages, setAiMessages] = React.useState([]);
+
+  React.useEffect(() => {
+    const welcomePage =
+      localStorage.getItem("@ai_welcome_page") === null
+        ? null
+        : JSON.parse(localStorage.getItem("@ai_welcome_page") as string);
+
+    setWelcomePage(welcomePage ?? true);
+  }, []);
+
+  React.useEffect(() => {
+    if (userMessage.length > 0) {
+      setWelcomePage(false);
+      localStorage.setItem("@ai_welcome_page", JSON.stringify(false));
+    }
+  }, [userMessage]);
 
   return (
     <>
@@ -36,53 +61,60 @@ function Assistant({
       </button>
       <ChildBlurModal isOpen={isOpen} className="bg-white-105 hideScrollBar">
         <div className="w-full h-[100vh] flex flex-col items-center justify-center overflow-hidden">
-          <div className="w-full absolute top-0 py-3 flex items-center justify-between px-[1em] backdrop-blur bg-white-100 bg-opacity-75 ">
-            <button
-              className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start top-1"
-              onClick={closeAssistantModal}
-            >
-              <IoIosArrowBack size={20} />
-              <p className="text-dark-100 text-[14px] ppM flex items-center justify-center gap-2">
-                Back
-              </p>
-            </button>
-            <button
-              className="w-[40px] h-[40px] bg-white-300 rounded-[50%] ppM flex flex-col text-center items-center justify-center"
-              onClick={() => setSettingsModal(true)}
-            >
-              <BiCog size={20} />
-            </button>
-          </div>
-          {/* <WelcomeScreen /> */}
+          {welcomePage === false && (
+            <div className="w-full absolute top-0 py-3 flex items-center justify-between px-[1em] backdrop-blur bg-white-100 bg-opacity-75 ">
+              <button
+                className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start top-1"
+                onClick={closeAssistantModal}
+              >
+                <IoIosArrowBack size={20} />
+                <p className="text-dark-100 text-[14px] ppM flex items-center justify-center gap-2">
+                  Back
+                </p>
+              </button>
+              <button
+                className="w-[40px] h-[40px] bg-white-300 rounded-[50%] ppM flex flex-col text-center items-center justify-center"
+                onClick={() => setSettingsModal(true)}
+              >
+                <BiCog size={20} />
+              </button>
+            </div>
+          )}
+          {welcomePage && <WelcomeScreen setUserMessage={setUserMessage} />}
           {/* Main chat area */}
-          <div className="w-full h-[100vh] flex flex-col items-start justify-start overflow-y-auto hideScrollBar px-4 gap-5">
-            {/* Gap */}
-            <div className="w-full min-h-[60px] "></div>
+          {welcomePage === false && (
+            <div className="w-full h-[100vh] flex flex-col items-start justify-start overflow-y-auto hideScrollBar px-4 gap-5">
+              {/* Gap */}
+              <div className="w-full min-h-[60px] "></div>
 
-            {Array(10)
-              .fill(0)
-              .map((d) => (
-                <>
-                  <div className="w-full flex flex-col items-end justify-end">
-                    <div className="w-full max-w-[300px] h-auto bg-green-600 text-white-100 flex flex-col items-start justify-start px-3 py-3 text-[12px] ppR rounded-md ">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Perferendis a delectus ipsa atque sequi, nulla ipsam.
+              {userMessage.map((m) => (
+                <div
+                  key={m.message.length * Math.random() * 100}
+                  className="w-full"
+                >
+                  {m.type === "user" && (
+                    <div className="w-full flex flex-col items-end justify-end">
+                      <div className="w-auto max-w-[300px] h-auto bg-white2-400 text-dark-100 flex flex-col items-start justify-start px-3 py-3 text-[12px] ppR rounded-md ">
+                        {m.message}
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="w-full flex flex-col items-start justify-start">
-                    <div className="w-full max-w-[300px] h-auto bg-white2-400 text-dark-100 flex flex-col items-start justify-start px-3 py-3 text-[12px] ppR rounded-md ">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Dolore magni beatae, fugit nam impedit id excepturi iusto
-                      a numquam quae velit odio distinctio quasi, voluptatibus
-                      aspernatur sint. Similique, explicabo rem?
+                  )}
+                  {m.type === "bot" && (
+                    <div
+                      key={m.message.length * Math.random() * 100}
+                      className="w-full flex flex-col items-start justify-start"
+                    >
+                      <div className="w-full max-w-[300px] h-auto bg-green-600 text-white-100 flex flex-col items-start justify-start px-3 py-3 text-[12px] ppR rounded-md ">
+                        {m.message}
+                      </div>
                     </div>
-                  </div>
-                </>
+                  )}
+                </div>
               ))}
 
-            <div className="w-full min-h-[90px] "></div>
-          </div>
+              <div className="w-full min-h-[90px] "></div>
+            </div>
+          )}
 
           {/* Settings */}
           <ChildBlurModal
@@ -135,7 +167,7 @@ function Assistant({
                 rows={2}
                 className="w-full max-h-[50px] text-white-200 text-[14px] ppR py-2 resize-none outline-none px-2 border-none bg-transparent text-white"
               ></textarea>
-              <button className="w-[60px] h-[50px] bg-green-600 rounded-md  ppM flex flex-col text-center items-center justify-center">
+              <button className="w-[60px] h-[50px] bg-green-600 text-white-100 rounded-md  ppM flex flex-col text-center items-center justify-center">
                 <BiSend size={20} />
               </button>
             </div>
@@ -148,7 +180,13 @@ function Assistant({
 
 export default Assistant;
 
-function WelcomeScreen() {
+interface WelcomeScreenProps {
+  setUserMessage: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+}
+
+function WelcomeScreen({ setUserMessage }: WelcomeScreenProps) {
+  const exampleMessages = ["How to improve soil condition"];
+
   return (
     <div className="w-full h-full mt-4 py-8 flex flex-col items-center justify-start">
       <div className="w-auto flex items-center justify-center">
@@ -167,12 +205,20 @@ function WelcomeScreen() {
         <p className="text-white-400 N-B mt-3">Few examples to ask</p>
       </div>
       <div className="w-full mt-9 flex flex-wrap items-center justify-center gap-3">
-        <button className="w-full max-w-[120px] bg-white-300 rounded-md ppM text-[14px] flex text-center px-3 py-3">
-          How to improve soil condition
-        </button>
-        <button className="w-full max-w-[120px] bg-white-300 rounded-md ppM text-[14px] flex text-center px-3 py-3">
-          How to improve soil condition
-        </button>
+        {exampleMessages.map((d) => (
+          <button
+            key={d}
+            className="w-full max-w-[140px] bg-white-300 rounded-md ppM text-[12px] flex text-center px-3 py-3"
+            onClick={() =>
+              setUserMessage((prev) => [
+                ...prev,
+                { message: d, lang: "en", type: "user" },
+              ])
+            }
+          >
+            How to improve soil condition
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -74,3 +74,13 @@ export const ProductCheckout = gql`
     }
   }
 `;
+
+export const SeedzAssistant = gql`
+  mutation SeedzAiMutation($AiInput: AiInput!) {
+    askSeedzAi(payload: $AiInput) {
+      answer
+      lang
+      success
+    }
+  }
+`;

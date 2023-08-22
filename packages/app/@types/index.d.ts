@@ -78,3 +78,8 @@ type ProductQty = {
   name: string;
   // amount: number;
 };
+
+export type SeedzAiPayload = {
+  question: string;
+  lang: string;
+};

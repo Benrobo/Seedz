@@ -37,3 +37,8 @@ export const ProductCheckoutSchema = Joi.object({
     )
     .required(),
 });
+
+export const SeedzAiSchema = Joi.object({
+  question: Joi.string().required().max(3000),
+  lang: Joi.string().required(),
+});

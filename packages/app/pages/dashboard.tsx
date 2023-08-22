@@ -50,7 +50,7 @@ function Dashboard() {
   };
 
   const rolebadgeColor = (role: string) => {
-    if (role === "MERCHANT") return "#15eb80";
+    if (role === "SUPPLIER") return "#15eb80";
     if (role === "BUYER") return "#ff8500";
     if (role === "MERCHANT") return "#4055e4";
   };

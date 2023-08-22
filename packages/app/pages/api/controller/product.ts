@@ -306,10 +306,7 @@ export default class ProductController {
       );
     }
 
-    Promise.all([]);
-
-    console.log("SENDING BUYER MAIL");
-    const firstMailSent = await sendMail({
+    await sendMail({
       to: (buyerWalletBal as any)?.user?.email as string,
       subject: "Purchase Confirmation Email",
       template: ProductCheckoutTemp({
@@ -322,21 +319,18 @@ export default class ProductController {
       }),
     });
 
-    if (firstMailSent?.success) {
-      console.log("SENDING MERCHANT MAIL");
-      await sendMail({
-        to: (sellerWalletBal as any)?.user?.email as string,
-        subject: "Purchase Confirmation Email",
-        template: ProductCheckoutTemp({
-          email: buyerInfo?.email as string,
-          fullname: buyerInfo?.fullname as string,
-          products: prodInfo?.info as any,
-          type: "CREDIT",
-          isBuyer: false,
-          amount: totalCreditedAmount,
-        }),
-      });
-    }
+    await sendMail({
+      to: (sellerWalletBal as any)?.user?.email as string,
+      subject: "Purchase Confirmation Email",
+      template: ProductCheckoutTemp({
+        email: buyerInfo?.email as string,
+        fullname: buyerInfo?.fullname as string,
+        products: prodInfo?.info as any,
+        type: "CREDIT",
+        isBuyer: false,
+        amount: totalCreditedAmount,
+      }),
+    });
 
     // return success
     return { success: true };

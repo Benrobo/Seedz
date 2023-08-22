@@ -12,6 +12,8 @@ import {
 } from "../helper/validator";
 import { genID } from "../helper";
 import $http from "../config/axios";
+import sendMail from "../helper/sendMail";
+import { ProductCheckoutTemp } from "@/components/EmailTemplate";
 
 type productQtyArray = { prodId: string; qty: number; name: string }[];
 export default class ProductController {
@@ -94,6 +96,7 @@ export default class ProductController {
           id,
           amount: amount as number,
           qty: item.qty,
+          name: prodSeller?.name,
           userInfo: {
             // sellers info
             id: prodSeller?.user?.id,
@@ -279,7 +282,12 @@ export default class ProductController {
           balance: updatedBuyerBalance,
         },
       });
-      console.log(`Debited ${buyerInfo?.email} : ${totalDebitedAmount}`);
+
+      console.log(
+        `Debited ${
+          (buyerWalletBal as any)?.user?.email
+        } : ${totalDebitedAmount}`
+      );
     }
 
     // Update seller's wallet balance
@@ -290,11 +298,44 @@ export default class ProductController {
           balance: updatedSellerBalance,
         },
       });
+
       console.log(
         `Credited ${
           (sellerWalletBal as any)?.user?.email
         } : ${totalCreditedAmount}`
       );
+    }
+
+    Promise.all([]);
+
+    console.log("SENDING BUYER MAIL");
+    const firstMailSent = await sendMail({
+      to: (buyerWalletBal as any)?.user?.email as string,
+      subject: "Purchase Confirmation Email",
+      template: ProductCheckoutTemp({
+        email: buyerInfo?.email as string,
+        fullname: buyerInfo?.fullname as string,
+        products: prodInfo?.info as any,
+        type: "DEBIT",
+        isBuyer: true,
+        amount: totalDebitedAmount,
+      }),
+    });
+
+    if (firstMailSent?.success) {
+      console.log("SENDING MERCHANT MAIL");
+      await sendMail({
+        to: (sellerWalletBal as any)?.user?.email as string,
+        subject: "Purchase Confirmation Email",
+        template: ProductCheckoutTemp({
+          email: buyerInfo?.email as string,
+          fullname: buyerInfo?.fullname as string,
+          products: prodInfo?.info as any,
+          type: "CREDIT",
+          isBuyer: false,
+          amount: totalCreditedAmount,
+        }),
+      });
     }
 
     // return success

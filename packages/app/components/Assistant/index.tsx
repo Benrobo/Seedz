@@ -169,10 +169,13 @@ function Assistant({
       >
         <BiSolidBot size={45} className="p-3" />
       </button>
-      <ChildBlurModal isOpen={isOpen} className="bg-white-105 hideScrollBar">
-        <div className="w-full h-[100vh] flex flex-col items-center justify-center overflow-hidden">
-          {welcomePage === false && (
-            <div className="w-full absolute top-0 py-3 flex items-center justify-between px-[1em] backdrop-blur bg-white-100 bg-opacity-75 ">
+      <ChildBlurModal
+        isOpen={isOpen}
+        className="w-full h-[100vh] bg-white-105 overflow-hidden "
+      >
+        <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden">
+          {messages?.length > 0 && (
+            <div className="w-full fixed top-0 py-3 flex items-center justify-between px-[1em] z-[100] backdrop-blur bg-white-100 bg-opacity-75 ">
               <button
                 className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start top-1"
                 onClick={closeAssistantModal}
@@ -200,7 +203,7 @@ function Assistant({
           {messages?.length > 0 && (
             <div className="w-full h-[100vh] flex flex-col items-start justify-start overflow-y-auto hideScrollBar px-4 gap-5">
               {/* Gap */}
-              <div className="w-full min-h-[60px] "></div>
+              <div className="w-full min-h-[160px] "></div>
 
               {messages?.length > 0
                 ? messages?.map((m) => (
@@ -263,50 +266,57 @@ function Assistant({
           )}
 
           {/* Settings */}
-          <ChildBlurModal
-            isOpen={settingsModal}
-            onClose={() => setSettingsModal(false)}
-            showCloseIcon
-            isBlurBg
-            className="bg-dark-500"
-          >
-            <div className="w-full h-full flex flex-col items-center justify-center">
-              <div className="w-full max-w-[300px] flex flex-col items-center justify-center bg-white-100 rounded-md ">
-                <div className="w-full border-b-solid border-b-[.5px] border-b-white-400 flex items-center justify-center px-3 py-2">
-                  <p className="text-dark-100 ppm text-[14px] ">
-                    Chat Settings
-                  </p>
+          {settingsModal && (
+            <ChildBlurModal
+              isOpen={settingsModal}
+              onClose={() => setSettingsModal(false)}
+              showCloseIcon
+              isBlurBg
+              className="bg-dark-500"
+            >
+              <div className="w-full h-full flex flex-col items-center justify-center">
+                <div className="w-full max-w-[300px] flex flex-col items-center justify-center bg-white-100 rounded-md ">
+                  <div className="w-full border-b-solid border-b-[.5px] border-b-white-400 flex items-center justify-center px-3 py-2">
+                    <p className="text-dark-100 ppm text-[14px] ">
+                      Chat Settings
+                    </p>
+                  </div>
+                  <br />
+                  <div className="w-full flex flex-col items-start justify-start px-3 py-2">
+                    <p className="text-dark-100 ppm text-[14px] ">
+                      Set language
+                    </p>
+                    <select
+                      name="language"
+                      id=""
+                      className="w-full mt-2 text-[14px] text-dark-400 bg-white2-300 px-3 py-2 rounded-md ppR"
+                      onChange={(e) => setSelectedLang(e.target.value)}
+                    >
+                      <option value="">select language</option>
+                      {chatLanguages.map((d) => (
+                        <option key={d.code} value={d.code}>
+                          {d.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <br />
+                  <div className="w-full flex flex-col items-center justify-center px-3">
+                    <button
+                      className="w-full bg-green-600 text-white-100 rounded-[30px] ppM text-[14px] flex items-center justify-center text-center px-3 py-3"
+                      onClick={() => setSettingsModal(false)}
+                    >
+                      Continue
+                    </button>
+                  </div>
+                  <br />
                 </div>
-                <br />
-                <div className="w-full flex flex-col items-start justify-start px-3 py-2">
-                  <p className="text-dark-100 ppm text-[14px] ">Set language</p>
-                  <select
-                    name="language"
-                    id=""
-                    className="w-full mt-2 text-[14px] text-dark-400 bg-white2-300 px-3 py-2 rounded-md ppR"
-                    onChange={(e) => setSelectedLang(e.target.value)}
-                  >
-                    <option value="">select language</option>
-                    {chatLanguages.map((d) => (
-                      <option key={d.code} value={d.code}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <br />
-                {/* <div className="w-full flex flex-col items-center justify-center px-3">
-                  <button className="w-full bg-green-600 text-white-100 rounded-[30px] ppM text-[14px] flex items-center justify-center text-center px-3 py-3">
-                    Save Settings
-                  </button>
-                </div> */}
-                <br />
               </div>
-            </div>
-          </ChildBlurModal>
+            </ChildBlurModal>
+          )}
 
           {/* chat section */}
-          <div className="w-full absolute bottom-0 right-0 flex flex-col items-center justify-center backdrop-blur bg-white-500 bg-opacity-75 px-3 py-3">
+          <div className="w-full absolute bottom-[-18px] right-0 flex flex-col items-center justify-center backdrop-blur bg-white-500 bg-opacity-75 px-3 py-3">
             <div className="w-full flex items-center justify-center p-1 rounded-md bg-dark-300 ">
               <input
                 name=""
@@ -329,6 +339,7 @@ function Assistant({
                 <BiSend size={20} />
               </button>
             </div>
+            <br />
           </div>
         </div>
       </ChildBlurModal>
@@ -344,10 +355,17 @@ interface WelcomeScreenProps {
 }
 
 function WelcomeScreen({ setMessage, sendInitialAiMsg }: WelcomeScreenProps) {
-  const exampleMessages = ["How to improve soil condition"];
+  const exampleMessages = [
+    "How to improve soil condition",
+    "What are the most effective methods for pest control on cabbage?",
+    "What is the best time to plant okra in Nigeria?",
+    "When should I plant my cotton for the best prices when it is ready?",
+    "How do I improve soil condition using natural methods?",
+    "How can I reduce my water usage for my cotton?",
+  ];
 
   return (
-    <div className="w-full h-full mt-4 py-8 flex flex-col items-center justify-start">
+    <div className="w-full h-[100vh] mt-4 py-8 flex flex-col items-center justify-start">
       <div className="w-auto flex items-center justify-center">
         <ImageTag
           src="/assets/img/logo/leaf-logo.svg"
@@ -376,7 +394,7 @@ function WelcomeScreen({ setMessage, sendInitialAiMsg }: WelcomeScreenProps) {
               sendInitialAiMsg(d);
             }}
           >
-            How to improve soil condition
+            {d}
           </button>
         ))}
       </div>

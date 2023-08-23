@@ -29,6 +29,7 @@
     "jsonwebtoken": "^9.0.0",
     "markdown-it": "^13.0.1",
     "memory-cache": "^0.2.0",
+    "moment": "^2.29.4",
     "nanoid": "^4.0.2",
     "next": "13.1.6",
     "nprogress": "^0.2.0",

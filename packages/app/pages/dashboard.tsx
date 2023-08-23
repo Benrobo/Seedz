@@ -6,7 +6,7 @@ import withAuth from "@/helpers/withAuth";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import React from "react";
 import { BiCurrentLocation } from "react-icons/bi";
-import { BsBank2 } from "react-icons/bs";
+import { BsBank2, BsFillCloudLightningRainFill } from "react-icons/bs";
 import { FaTemperatureHigh } from "react-icons/fa";
 import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow, MdVerified } from "react-icons/md";
@@ -19,6 +19,9 @@ import { UserType } from "../@types";
 import handleApolloHttpErrors from "./http/error";
 import useIsRendered from "@/helpers/useIsRendered";
 import Assistant from "@/components/Assistant";
+import useWeather from "@/helpers/useWeather";
+import moment from "moment";
+import ImageTag from "@/components/Image";
 
 function Dashboard() {
   const { userId } = useAuth();
@@ -35,6 +38,12 @@ function Dashboard() {
   });
   const [userInfo, setUserInfo] = React.useState<UserType>({} as UserType);
   const [assistantModal, setAssistantModal] = React.useState(false);
+  const {
+    getGeolocation,
+    getWeatherByLocation,
+    loading: weatherLoading,
+    weatherInfo,
+  } = useWeather();
 
   const MAX_FUND_AMOUNT = 500;
 
@@ -107,7 +116,7 @@ function Dashboard() {
         ) : null}
         <div className="w-full h-[100vh] relative bg-white-100 flex flex-col items-center justify-start overflow-x-hidden ">
           <div className="w-full h-[650px] relative overflow-hidden bg-dark-100 before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg] flex items-start justify-start ">
-            <div className="w-full z-[1] flex items-start justify-between px-[2em] px-md:[3em] mt-[4em] ">
+            <div className="w-full z-[1] flex items-start justify-between px-[1.5em] md:px-[3em] mt-[4em] ">
               <div className="w-full flex flex-col items-start justify-start">
                 <h1 className="N-EB text-white-200 text-[28px] max-w-[250px] ">
                   Welcome,{" "}
@@ -129,24 +138,10 @@ function Dashboard() {
                 </div>
               </div>
             </div>
-
-            {/* mini weather info */}
-            <div className="w-full px-3 py-2 absolute bottom-[4.4em] right-0 flex items-center justify-end gap-5">
-              <div className="flex items-center justify-start gap-1">
-                <FaTemperatureHigh className="text-green-600" />
-                <span className="N-B text-[14px] text-white-100">20</span>
-              </div>
-              <div className="flex items-center justify-start gap-1">
-                <BiCurrentLocation className="text-red-300" />
-                <span className="N-B text-[14px] text-white-100">
-                  Lagos, Nigeria
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* Wallet Section */}
-          <div className="w-full relative z-[100] top-[-3.5em]  flex flex-col items-center justify-center px-[3.5em]  ">
+          <div className="w-full relative z-[100] top-[-3.5em]  flex flex-col items-center justify-center px-[1.3em] md:px-[3.5em]  ">
             {/* style needed to add a mini box uder the div */}
             {/* before:content-[''] before:w-[70%] before:h-[100px] before:z-[-5] before:absolute before:bottom-[-.7em] before:mx-auto before:bg-green-300 before:shadow-sm before:rounded-[20px] */}
             <div className="w-full z-[2] relative flex flex-col items-center justify-center bg-white-100 shadow-lg rounded-[10px] py-5 ">
@@ -172,8 +167,34 @@ function Dashboard() {
             </div>
           </div>
 
-          <main className="w-full h-full z-[100] max-h-full hideScrollBar overflow-y-hidden ">
+          <main className="w-full h-full z-[100] max-h-full hideScrollBar overflow-y-hidden flex flex-col items-center justify-start px-[1.3em] md:px-[3.5em] ">
             {/* some other component here */}
+            <div className="w-full h-auto shadow-md rounded-md bg-dark-100 p-7 overflow-hidden relative before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg]">
+              <div className="w-full flex items-center justify-between">
+                <h1 className="N-B text-[15px] z-[1] text-white-100 ">Today</h1>
+                <h1 className="ppR text-[10px] text-white-200 z-[1] ">
+                  {moment(Date.now()).format("MMM Do YY")}
+                </h1>
+              </div>
+              <div className="w-full mt-5 flex items-center justify-between">
+                <h1 className="N-B text-5xl md:text-6xl z-[1] text-green-600 flex items-start justify-start gap-2">
+                  {weatherInfo?.temperature ?? 0}{" "}
+                  <span className="text-orange-300 text-4xl  ">&#x2103;</span>
+                </h1>
+                <ImageTag
+                  src={
+                    weatherInfo?.icon ??
+                    "https://openweathermap.org/img/wn/04n@2x.png"
+                  }
+                  className="shadow-lg animate-pulse"
+                  alt="weather icon"
+                />
+              </div>
+
+              {weatherLoading && (
+                <div className="w-full h-full absolute top-0 left-0 backdrop-blur bg-white-500 bg-opacity-75 z-[10] "></div>
+              )}
+            </div>
           </main>
         </div>
 

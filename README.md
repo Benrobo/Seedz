@@ -15,6 +15,7 @@ To empower small farmers by facilitating access to markets, buyers, suppliers, a
 <img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/3.png" width="300" />
 <img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/4.png" width="300" />
 <img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/5.png" width="300" />
+<img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/6.png" width="300" />
 </div>
 
 ## Problem statement:
@@ -71,7 +72,7 @@ For a seamless experience for farmers and consumers, SeedzAI was developed using
 
 ## Acknowledgement
 
-Huge thanks to the [GenzHackfest]() team for making this hackathon happen! I've gained so much knowledge in such a short time. 🙌 Despite the countless sleepless nights, I learned, built, and deployed this project in just 3 days – it's been an incredible accomplishment. I'm amazed by what I achieved in such a short time! Most of the tech I used was new to me, but this hackfest pushed me to learn fast 🚀.
+Huge thanks to the [GenzHackfest](https://twitter.com/genztechies) team for making this hackathon happen! I've gained so much knowledge in such a short time. 🙌 Despite the countless sleepless nights, I learned, built, and deployed this project in just 3 days – it's been an incredible accomplishment. I'm amazed by what I achieved in such a short time! Most of the tech I used was new to me, but this hackfest pushed me to learn fast 🚀.
 
 Even though this project isn't perfect, considering the timeline spent, developing this to an MVP stage was worth it in the end. Can't wait to see the next milestone with this.
 🎉 Thank you for this opportunity and a big shoutout to the team and contributors – your efforts will definitely pay off! 👏

@@ -159,7 +159,19 @@ function Dashboard() {
                   <span className="text-[12px] N-B ">Add Money</span>{" "}
                   <IoAddOutline className="ml-2 text-white-100" />
                 </button>
-                <button className="px-6 py-3 rounded-[30px] flex items-center justify-between bg-green-600 text-white-100 ppR">
+                <button
+                  className="px-6 py-3 rounded-[30px] flex items-center justify-between bg-green-600 text-white-100 ppR"
+                  onClick={() => {
+                    toast("Coming Soon!", {
+                      icon: "🚀",
+                      style: {
+                        borderRadius: "10px",
+                        background: "#333",
+                        color: "#fff",
+                      },
+                    });
+                  }}
+                >
                   <span className="text-[12px] N-B ">Withdraw</span>{" "}
                   <BsBank2 className="ml-2 text-white-100" />
                 </button>

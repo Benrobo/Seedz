@@ -8,6 +8,7 @@ import { AddRoleToCache } from "../http";
 import { Spinner } from "@/components/Spinner";
 import toast from "react-hot-toast";
 import handleApolloHttpErrors from "../http/error";
+import Link from "next/link";
 
 function Signup() {
   const [steps, setSteps] = React.useState(1);
@@ -63,11 +64,13 @@ function Signup() {
       <div className="w-full h-[100vh] max-w-[500px] flex flex-col items-center justify-center">
         <div className="w-full h-auto flex items-center justify-center">
           <div className="w-auto flex items-center justify-center">
-            <ImageTag
-              src="/assets/img/logo/leaf-logo.svg"
-              className="w-[70px] h-[70px] bg-white-100 p-1 scale-[.85] shadow-xl rounded-[50%]  "
-              alt="seedz"
-            />
+            <Link href="/">
+              <ImageTag
+                src="/assets/img/logo/leaf-logo.svg"
+                className="w-[70px] h-[70px] bg-white-100 p-1 scale-[.85] shadow-xl rounded-[50%]  "
+                alt="seedz"
+              />
+            </Link>
             <span className="N-EB text-[30px] text-white-100">Seedz</span>
           </div>
         </div>

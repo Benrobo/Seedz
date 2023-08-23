@@ -1,3 +1,6 @@
+declare module "markdown-it";
+
+declare module "react-speech-recognition";
 export interface CreateUserType {
   id: string;
   role: "MERCHANT" | "SUPPLIER" | "BUYER";

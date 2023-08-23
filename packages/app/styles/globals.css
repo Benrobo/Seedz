@@ -107,10 +107,10 @@ input[type="number"]::-webkit-outer-spin-button {
 .chatLoading .lds-ellipsis div {
   position: absolute;
   top: 2px;
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #fff;
+  background: #777;
   animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
 .chatLoading .lds-ellipsis div:nth-child(1) {
@@ -152,4 +152,8 @@ input[type="number"]::-webkit-outer-spin-button {
   100% {
     transform: translate(24px, 0);
   }
+}
+
+.ChatMsg a {
+  color: #4a4ad3;
 }

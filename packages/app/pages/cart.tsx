@@ -19,8 +19,8 @@ import {
   buildStyles,
 } from "react-circular-progressbar";
 import { useMutation } from "@apollo/client";
-import { ProductCheckout } from "./http";
-import handleApolloHttpErrors from "./http/error";
+import { ProductCheckout } from "../http";
+import handleApolloHttpErrors from "../http/error";
 import { IoClose } from "react-icons/io5";
 import { BsCheckCircleFill } from "react-icons/bs";
 

@@ -4,10 +4,10 @@ import { useMutation, useQuery } from "@apollo/client";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import React from "react";
 import { twMerge } from "tailwind-merge";
-import { AddRoleToCache } from "../http";
+import { AddRoleToCache } from "../../http";
 import { Spinner } from "@/components/Spinner";
 import toast from "react-hot-toast";
-import handleApolloHttpErrors from "../http/error";
+import handleApolloHttpErrors from "../../http/error";
 import Link from "next/link";
 
 function Signup() {

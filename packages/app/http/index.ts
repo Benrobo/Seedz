@@ -92,3 +92,6 @@ export const DeleteProduct = gql`
     }
   }
 `;
+
+// just to prevent error during build process.
+export default function f() {}

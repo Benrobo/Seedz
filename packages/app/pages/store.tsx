@@ -19,8 +19,8 @@ import {
   DeleteProduct,
   GetAllProducts,
   ProductCheckout,
-} from "./http";
-import handleApolloHttpErrors from "./http/error";
+} from "../http";
+import handleApolloHttpErrors from "../http/error";
 import StarRating from "@/components/StarRating";
 import { BsFillTrashFill } from "react-icons/bs";
 import { Blurhash } from "react-blurhash";
@@ -323,10 +323,13 @@ function Store() {
     }
   };
 
-  const userInfo =
-    localStorage.getItem("@userInfo") === null
-      ? null
-      : JSON.parse(localStorage.getItem("@userInfo") as string);
+  let userInfo = null;
+  if (typeof window !== "undefined") {
+    userInfo =
+      localStorage.getItem("@userInfo") === null
+        ? null
+        : JSON.parse(localStorage.getItem("@userInfo") as string);
+  }
 
   return (
     <Layout className="bg-white-105">

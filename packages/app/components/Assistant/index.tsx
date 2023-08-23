@@ -5,8 +5,8 @@ import { BiCog, BiSend, BiSolidBot } from "react-icons/bi";
 import ImageTag from "../Image";
 import { IoIosArrowBack } from "react-icons/io";
 import { useMutation } from "@apollo/client";
-import { SeedzAssistant } from "@/pages/http";
-import handleApolloHttpErrors from "@/pages/http/error";
+import { SeedzAssistant } from "@/http";
+import handleApolloHttpErrors from "@/http/error";
 import MarkdownRenderer from "../MarkdownRender";
 
 const chatLanguages = [

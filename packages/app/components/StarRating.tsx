@@ -1,7 +1,11 @@
 import React from "react";
 import { FaStar } from "react-icons/fa";
 
-const StarRating = ({ averageRating }: { averageRating: number }) => {
+const StarRating = ({
+  averageRating,
+}: {
+  averageRating: number;
+}): JSX.Element[] => {
   const maxStars = 5;
   const fullStars = Math.floor(
     averageRating > maxStars ? maxStars : averageRating

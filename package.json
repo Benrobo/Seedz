@@ -10,8 +10,9 @@
   "scripts": {
     "test": "",
     "app": "yarn workspace app run dev",
-    "build": "yarn workspaces run build",
-    "watch": "yarn workspaces run watch"
+    "build": "prisma generate && yarn workspaces run build",
+    "watch": "yarn workspaces run watch",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",

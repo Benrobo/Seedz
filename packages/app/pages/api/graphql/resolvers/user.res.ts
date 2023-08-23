@@ -26,8 +26,17 @@ const userResolvers = {
       info: any
     ) => {
       const validRoles = ["MERCHANT", "BUYER", "SUPPLIER"];
-      const ipAddr =
-        context.headers["x-real-ip"] || context.connection.remoteAddress;
+      let ipAddr: any;
+
+      if (context.headers["x-forwarded-for"]) {
+        ipAddr = context.headers["x-forwarded-for"].split(",")[0];
+      } else if (context.headers["x-real-ip"]) {
+        ipAddr = context.connection.remoteAddress;
+      } else {
+        ipAddr = context.connection.remoteAddress;
+      }
+
+      console.log({ ipAddr });
 
       if (!validRoles.includes(role)) {
         throw new ServerResponseError(

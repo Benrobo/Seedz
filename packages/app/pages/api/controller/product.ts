@@ -335,4 +335,49 @@ export default class ProductController {
     // return success
     return { success: true };
   }
+
+  async deleteProduct(prodId: string, userId: string) {
+    if (prodId.length === 0) {
+      throw new ServerResponseError("INVALID_PROD_ID", "product id is missing");
+    }
+
+    // check if product exists or not
+    const product = await prisma.products.findFirst({
+      where: {
+        AND: {
+          id: prodId,
+        },
+      },
+    });
+
+    if (product === null) {
+      throw new ServerResponseError(
+        "PRODUCT_NOTFOUND",
+        "Failed to delete, product not found."
+      );
+    }
+
+    const isAuthorised = await prisma.products.findFirst({
+      where: {
+        AND: {
+          id: prodId,
+          userId,
+        },
+      },
+    });
+
+    if (isAuthorised === null) {
+      throw new ServerResponseError(
+        "Unauthorized_Action",
+        "Permission denied."
+      );
+    }
+
+    // delete the product
+    await prisma.products.delete({
+      where: { id: prodId },
+    });
+
+    return { success: true };
+  }
 }

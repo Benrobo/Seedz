@@ -14,7 +14,12 @@ import { encode } from "blurhash";
 import { LazyLoadImg } from "@/components/Image";
 import axios from "axios";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import { AddProduct, GetAllProducts, ProductCheckout } from "./http";
+import {
+  AddProduct,
+  DeleteProduct,
+  GetAllProducts,
+  ProductCheckout,
+} from "./http";
 import handleApolloHttpErrors from "./http/error";
 import StarRating from "@/components/StarRating";
 import { BsFillTrashFill } from "react-icons/bs";
@@ -45,6 +50,9 @@ function Store() {
   const [allProducts, setAllProducts] = React.useState<AllProductProp[]>(
     [] as AllProductProp[]
   );
+  const [copyProducts, setCopyProducts] = React.useState<AllProductProp[]>(
+    [] as AllProductProp[]
+  );
   const [selectedProd, setSelectedProd] = React.useState<AllProductProp>(
     {} as AllProductProp
   );
@@ -59,6 +67,8 @@ function Store() {
   const [selectedProductModal, setSelectedModal] = React.useState(false);
   const [selectedProdPurchaseType, setSelectedProdPurchaseType] =
     React.useState("");
+  const [deleteProductMut, deleteProdMutProps] = useMutation(DeleteProduct);
+  const [searchWrd, setSearchWrd] = React.useState("");
 
   const seedzFileInput = React.useRef();
 
@@ -142,21 +152,6 @@ function Store() {
   const addProduct = async () => {
     const { category, description, name, price, quantity, rentingPrice } =
       productInfo;
-
-    // if (!category || !description || !name) {
-    //   toast.error("Please fill in all required fields.");
-    //   return;
-    // }
-
-    // if (!availableForRent && price === 0) {
-    //   toast.error("Please fill in all required fields.");
-    //   return;
-    // }
-
-    // if (availableForRent && rentingPrice.length === 0) {
-    //   toast.error("Please fill in all required fields.");
-    //   return;
-    // }
 
     const payload = {
       ...productInfo,
@@ -271,6 +266,18 @@ function Store() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addProductMutationProps.data, addProductMutationProps.error]);
 
+  //   deleting of product
+  React.useEffect(() => {
+    deleteProdMutProps.reset();
+    if (deleteProdMutProps.error) {
+      handleApolloHttpErrors(deleteProdMutProps.error);
+    } else if (deleteProdMutProps.data?.deleteProduct?.success) {
+      toast.success("Item deleted sucessfully");
+      window.location.reload();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteProdMutProps.data, deleteProdMutProps.error]);
+
   // all products
   React.useEffect(() => {
     getAllProducts(); // this would fetch all products initially and can also be used to refetch it later on.
@@ -283,8 +290,8 @@ function Store() {
       setProductsErr(err);
     } else if (allProductsQuery?.data?.getProducts?.length > 0) {
       const products = allProductsQuery.data?.getProducts;
-      console.log(products);
       setAllProducts(products);
+      setCopyProducts(products);
     }
   }, [allProductsQuery.data, allProductsQuery.error]);
 
@@ -295,6 +302,32 @@ function Store() {
           .toFixed(2)
       : 0;
 
+  const handleItemDelete = (id: string) => {
+    if (id.length === 0) return;
+    const confirm = window.confirm("Are you sure about this?");
+    if (confirm) {
+      deleteProductMut({
+        variables: { prodId: id },
+      });
+    }
+  };
+
+  const handleSearch = () => {
+    if (searchWrd.length > 0) {
+      const filteredProd = copyProducts.filter(
+        (p) => p.name.includes(searchWrd) || p.description.includes(searchWrd)
+      );
+      setAllProducts(filteredProd);
+    } else {
+      setAllProducts(copyProducts);
+    }
+  };
+
+  const userInfo =
+    localStorage.getItem("@userInfo") === null
+      ? null
+      : JSON.parse(localStorage.getItem("@userInfo") as string);
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="store" className="h-[100vh] overflow-y-hidden">
@@ -303,16 +336,24 @@ function Store() {
             <BiSearch size={20} className="text-white-400" />
             <input
               type="text"
-              className="w-full bg-transparent px-3 py-2 outline-none ppR"
+              className="w-full bg-transparent text-[13px] px-3 py-2 outline-none ppR"
               placeholder="Search here..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+              onChange={(e) => setSearchWrd(e.target.value)}
             />
           </div>
-          <button
-            className="w-[120px] px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] "
-            onClick={toggleProductModal}
-          >
-            Add Item
-          </button>
+          {userInfo?.role !== "BUYER" && (
+            <button
+              className="w-[120px] px-3 py-3 rounded-md text-[12px] bg-green-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.8] hover:opacity-[1] "
+              onClick={toggleProductModal}
+            >
+              Add Item
+            </button>
+          )}
         </div>
         <div className="w-full h-[100vh] flex flex-wrap items-start justify-between md:justify-start gap-1 px-[1em] md:px-[.4em] mt-5 overflow-y-auto">
           {allProductsQuery.loading === false && productErr !== null && (
@@ -344,10 +385,11 @@ function Store() {
                   handleProdSelection={handleProdSelection}
                   availableForRent={d?.availableForRent}
                   rentingPrice={d?.rentingPrice}
+                  handleItemDelete={handleItemDelete}
                 />
               ))
             ) : (
-              <div className="w-full h-full mt-[4em] flex flex-col items-center justify-center">
+              <div className="w-full h-auto mt-[1em] flex flex-col items-center justify-center">
                 <p className="text-dark-200 N-B">No Products Listed</p>
                 <p className="text-white-400 ppR text-[13px] ">
                   be the first to sell your product to customers.
@@ -499,6 +541,13 @@ function Store() {
                 </button>
               </div>
             </div>
+          </div>
+        </ChildBlurModal>
+
+        {/* deleting product modal */}
+        <ChildBlurModal isBlurBg isOpen={deleteProdMutProps.loading}>
+          <div className="w-full min-h-[50%] flex flex-col items-center justify">
+            <Spinner color={"#000"} />
           </div>
         </ChildBlurModal>
 
@@ -725,6 +774,7 @@ interface ItemCardProps {
   userId: string;
   authUserId: string;
   handleProdSelection: (e: any) => void;
+  handleItemDelete: (id: string) => void;
 }
 
 function ItemCard({
@@ -738,6 +788,7 @@ function ItemCard({
   imgUrl,
   availableForRent,
   rentingPrice,
+  handleItemDelete,
   handleProdSelection,
 }: ItemCardProps) {
   const avgRating =
@@ -767,7 +818,9 @@ function ItemCard({
       {/*  */}
       <div className="w-full flex flex-col items-start justify-start py-3 px-3">
         <div className="w-full flex items-center justify-between ">
-          <p className="text-dark-100 N-B text-[14px] ">{name}</p>
+          <p className="text-dark-100 N-B text-[14px] ">
+            {name?.length > 10 ? name.slice(0, 10) + "..." : name}
+          </p>
           <div className="w-auto flex items-center justify-center">
             <p className="w-auto flex items-center justify-center">
               <span className="ppR text-[12px] mr-2 ">{avgRating}</span>
@@ -783,7 +836,10 @@ function ItemCard({
             </span>
           </p>
           {isOwner && (
-            <button className="w-auto rounded-md bg-orange-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.9] hover:opacity-[1] ">
+            <button
+              className="w-auto rounded-md bg-orange-600 N-B text-white-100 flex items-center justify-center transition-all opacity-[.9] hover:opacity-[1] "
+              onClick={() => handleItemDelete(id)}
+            >
               <BsFillTrashFill size={30} className="p-[8px]" />
             </button>
           )}

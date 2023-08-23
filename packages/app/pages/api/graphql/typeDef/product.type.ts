@@ -7,6 +7,7 @@ const productTypeDef = gql`
 
   type Mutation {
     addProduct(payload: AddProductInput!): AddProductMutOutput
+    deleteProduct(prodId: String!): DeleteProdRes
     productCheckout(payload: ProductCheckoutType!): ProductCheckoutOut
   }
 
@@ -43,6 +44,10 @@ const productTypeDef = gql`
     qty: Int!
     name: String!
     # amount: Int!
+  }
+
+  type DeleteProdRes {
+    success: Boolean!
   }
 
   type ProductCheckoutOut {

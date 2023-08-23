@@ -31,6 +31,20 @@ const productResolvers = {
 
       return await productController.addProduct(payload, context.user.id);
     },
+    deleteProduct: async (
+      parent: any,
+      { prodId }: { prodId: string },
+      context: any,
+      info: any
+    ) => {
+      // isAuthenticated middleware
+      isAuthenticated(context);
+
+      // notBuyer middleware
+      await notBuyer(context);
+
+      return await productController.deleteProduct(prodId, context.user.id);
+    },
     productCheckout: async (
       parent: any,
       { payload }: { payload: ApiProductCheckoutProps },

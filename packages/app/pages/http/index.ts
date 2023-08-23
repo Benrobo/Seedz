@@ -84,3 +84,11 @@ export const SeedzAssistant = gql`
     }
   }
 `;
+
+export const DeleteProduct = gql`
+  mutation ProductDelete($prodId: String!) {
+    deleteProduct(prodId: $prodId) {
+      success
+    }
+  }
+`;

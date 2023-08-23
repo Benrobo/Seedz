@@ -21,9 +21,17 @@ const apolloServer = new ApolloServer({
     productResolvers,
     seedzAiResolvers,
   ],
-  context: ({ req }) => {
-    const { userId } = getAuth(req); // Replace with your authentication logic
-    return { user: { id: userId } };
+  context: ({ req }: { req: NextApiRequest }) => {
+    const { userId } = getAuth(req);
+    const user = { id: userId };
+
+    // Create a new context object by spreading properties from req and adding user
+    const context = {
+      req,
+      user,
+    };
+
+    return { user };
   },
   formatError: (error: GraphQLError) => {
     // Return a different error message

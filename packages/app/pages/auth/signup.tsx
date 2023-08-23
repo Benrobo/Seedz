@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import React from "react";
 import { twMerge } from "tailwind-merge";
-import { AddRoleToCache } from "../../http";
+import { UpdateUserRole } from "../../http";
 import { Spinner } from "@/components/Spinner";
 import toast from "react-hot-toast";
 import handleApolloHttpErrors from "../../http/error";
@@ -13,12 +13,6 @@ import Link from "next/link";
 function Signup() {
   const [steps, setSteps] = React.useState(1);
   const [role, setRole] = React.useState("");
-  const [addRoleToCache, { data, loading, error, reset }] = useMutation(
-    AddRoleToCache,
-    {
-      errorPolicy: "all",
-    }
-  );
 
   const validRoles = [
     { name: "Merchant", icon: "💼", role: "MERCHANT" },
@@ -32,7 +26,7 @@ function Signup() {
     if (filteredRole.role !== role) setRole(filteredRole.role);
   };
 
-  const handlecNextPrevState = () => {
+  const handleNextPrevState = () => {
     if (steps === 2) {
       setSteps(1);
     } else {
@@ -40,24 +34,10 @@ function Signup() {
         toast.error("Select A Role ");
         return;
       }
-      addRoleToCache({
-        variables: {
-          role: role,
-        },
-      });
-    }
-  };
-
-  // console.log({ error });
-
-  React.useEffect(() => {
-    reset();
-    if (error) {
-      handleApolloHttpErrors(error);
-    } else if (data?.addRoleToCache.success) {
+      localStorage.setItem("@userRole", JSON.stringify(role as string));
       setSteps(2);
     }
-  }, [data, error]);
+  };
 
   return (
     <div className="w-full bg-green-700 flex flex-col items-center justify-center px-[4em] ">
@@ -105,15 +85,11 @@ function Signup() {
           <div className="w-full mt-5 flex flex-col items-center justify-center">
             <button
               className="w-full bg-green-700 shadow-2xl px-3 py-2 rounded-[30px] flex flex-col items-center justify-center"
-              onClick={handlecNextPrevState}
+              onClick={handleNextPrevState}
             >
-              {loading ? (
-                <Spinner color="#fff" />
-              ) : (
-                <p className="text-white-100 text-1xl N-B ">
-                  {steps === 1 ? "Continue" : "Go Back"}
-                </p>
-              )}
+              <p className="text-white-100 text-1xl N-B ">
+                {steps === 1 ? "Continue" : "Go Back"}
+              </p>
             </button>
           </div>
         </div>

@@ -1,13 +1,13 @@
 import React from "react";
 
-function useIsRendered() {
+function useIsRendered(timer?: number) {
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
       clearTimeout(timeout);
       setLoading(true);
-    }, 2000);
+    }, (timer as number) * 1000 ?? 2000);
   });
 
   return loading;

@@ -8,7 +8,7 @@ const userTypeDef = gql`
 
   type Mutation {
     createUser(payload: CreateUserMut!): CreateUserMutOutput
-    addRoleToCache(role: String!): AddRoleToCacheRes
+    updateUserRole(role: Role!): UpdateUserRoleOup
   }
 
   # Beginning of  QUE/MUT Fields
@@ -18,7 +18,7 @@ const userTypeDef = gql`
     id: String!
   }
 
-  type AddRoleToCacheRes {
+  type UpdateUserRoleOup {
     success: Boolean!
   }
 

@@ -3,6 +3,7 @@ import prisma from "../../config/prisma";
 import UserController from "../../controller/user";
 import memcache from "memory-cache";
 import ServerResponseError from "../../helper/errorHandler";
+import { isAuthenticated } from "../middlewares/auth";
 
 const userController = new UserController();
 
@@ -19,34 +20,42 @@ const userResolvers = {
   Mutation: {
     createUser: async (_: any, { payload }: { payload: CreateUserType }) =>
       await userController.createUser(payload),
-    addRoleToCache: async (
+    updateUserRole: async (
       parent: any,
-      { role }: { role: string },
+      { role }: { role: "MERCHANT" | "BUYER" | "SUPPLIER" },
       context: any,
       info: any
     ) => {
-      const validRoles = ["MERCHANT", "BUYER", "SUPPLIER"];
-      let ipAddr: any;
+      isAuthenticated(context);
 
-      if (context.headers["x-forwarded-for"]) {
-        ipAddr = context.headers["x-forwarded-for"].split(",")[0];
-      } else if (context.headers["x-real-ip"]) {
-        ipAddr = context.connection.remoteAddress;
-      } else {
-        ipAddr = context.connection.remoteAddress;
+      if (typeof role === "undefined" || role.length === 0) {
+        throw new ServerResponseError("INVALID_FIELD", "Invalid role");
       }
 
-      console.log({ ipAddr });
+      const userId = context.user?.id;
+
+      console.log({ role, userId });
+
+      // check if user exists
+      const user = await prisma.users.findFirst({
+        where: { id: userId },
+      });
+
+      if (user === null) {
+        throw new ServerResponseError("USER_NOTFOUND", "user not found");
+      }
+
+      // check if role is valid
+      const validRoles = ["MERCHANT", "BUYER", "SUPPLIER"];
 
       if (!validRoles.includes(role)) {
-        throw new ServerResponseError(
-          "INVALID_USER_ROLE",
-          "Invalid role selected."
-        );
+        throw new ServerResponseError("INVALID_ROLE", "Invalid role given.!");
       }
 
-      const cacheTime = 30 * 60 * 1000; // 30 min
-      memcache.put(ipAddr, role, cacheTime);
+      await prisma.users.update({
+        where: { id: userId },
+        data: { role },
+      });
 
       return { success: true };
     },

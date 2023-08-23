@@ -12,7 +12,7 @@ import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow, MdVerified } from "react-icons/md";
 import { formatCurrency, formatNumLocale } from "./api/helper";
 import { useMutation, useQuery } from "@apollo/client";
-import { FundWallet, GetUserInfo } from "../http";
+import { FundWallet, GetUserInfo, UpdateUserRole } from "../http";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
 import { UserType } from "../@types";
@@ -25,16 +25,19 @@ import ImageTag from "@/components/Image";
 
 function Dashboard() {
   const { userId } = useAuth();
-  const hasRendered = useIsRendered();
+  const hasRendered = useIsRendered(5);
   const [walletTopup, setWalletTopup] = React.useState(false);
   const [topUpAmount, setTopUpAmount] = React.useState(0);
+  const [updateUserRole, updateUserRoleProps] = useMutation(UpdateUserRole, {
+    errorPolicy: "all",
+  });
+  const [hasRoleUpdated, setHasRoleUpdated] = React.useState(false);
   const [fundWallet, { loading, error, data, reset }] = useMutation(FundWallet);
   const userQuery = useQuery(GetUserInfo, {
     variables: {
       userId: userId,
     },
-    skip: hasRendered ? false : true, // if true, it wont be called.
-    // skip: hasRendered, // if true, it wont be called.
+    skip: hasRoleUpdated === false ? true : false,
   });
   const [userInfo, setUserInfo] = React.useState<UserType>({} as UserType);
   const [assistantModal, setAssistantModal] = React.useState(false);
@@ -66,6 +69,33 @@ function Dashboard() {
     if (role === "MERCHANT") return "#4055e4";
   };
 
+  React.useEffect(() => {
+    if (hasRendered) {
+      const hasRoleUpdated =
+        localStorage.getItem("@hasRoleUpdated") === null
+          ? null
+          : JSON.parse(localStorage.getItem("@hasRoleUpdated") as string);
+      if (hasRoleUpdated === null) {
+        updateRole();
+      } else {
+        setHasRoleUpdated(hasRoleUpdated);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasRendered]);
+
+  // updateRole
+  React.useEffect(() => {
+    updateUserRoleProps.reset();
+    if (updateUserRoleProps.error) {
+      updateRole();
+    } else if (updateUserRoleProps.data?.updateUserRole.success) {
+      localStorage.setItem("@hasRoleUpdated", JSON.stringify(true) as string);
+      setHasRoleUpdated(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateUserRoleProps.data, updateUserRoleProps.error]);
+
   // fundwallet mutation
   React.useEffect(() => {
     reset();
@@ -83,6 +113,7 @@ function Dashboard() {
 
   // fetch user info
   React.useEffect(() => {
+    if (hasRoleUpdated === false) return;
     if (userQuery.error) {
       // console.log(data);
       handleApolloHttpErrors(userQuery.error);
@@ -100,14 +131,29 @@ function Dashboard() {
       );
       setUserInfo(info);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userQuery.data, userQuery.error]);
 
-  // show a blur modal initially
+  // run the updaterole mutation
+  function updateRole() {
+    const role =
+      localStorage.getItem("@userRole") === null
+        ? null
+        : JSON.parse(localStorage.getItem("@userRole") as string);
+
+    updateUserRole({
+      variables: { role: role ?? "BUYER" },
+    });
+  }
+
+  console.log(userInfo);
 
   return (
     <Layout className="bg-white-105 overflow-y-hidden">
       <MobileLayout activePage="dashboard" className="overflow-hidden">
-        {!hasRendered || userQuery.loading === true ? (
+        {!hasRendered ||
+        userQuery.loading === true ||
+        updateUserRoleProps.loading ? (
           <ChildBlurModal isBlurBg isOpen={true}>
             <div className="w-full flex flex-col items-center justify-center">
               <Spinner color="#012922" />
@@ -183,7 +229,9 @@ function Dashboard() {
             {/* some other component here */}
             <div className="w-full h-auto shadow-md rounded-md bg-dark-100 p-7 overflow-hidden relative before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg]">
               <div className="w-full flex items-center justify-between">
-                <h1 className="N-B text-[15px] z-[1] text-white-100 ">Today</h1>
+                <h1 className="N-B text-[15px] z-[1] text-white-100 ">
+                  Today :- {weatherInfo?.description}
+                </h1>
                 <h1 className="ppR text-[10px] text-white-200 z-[1] ">
                   {moment(Date.now()).format("MMM Do YY")}
                 </h1>
@@ -193,14 +241,16 @@ function Dashboard() {
                   {weatherInfo?.temperature ?? 0}{" "}
                   <span className="text-orange-300 text-4xl  ">&#x2103;</span>
                 </h1>
-                <ImageTag
-                  src={
-                    weatherInfo?.icon ??
-                    "https://openweathermap.org/img/wn/04n@2x.png"
-                  }
-                  className="shadow-lg animate-pulse"
-                  alt="weather icon"
-                />
+                <div className="w-full flex flex-col items-center justify-center">
+                  <ImageTag
+                    src={
+                      weatherInfo?.icon ??
+                      "https://openweathermap.org/img/wn/04n@2x.png"
+                    }
+                    className="shadow-lg animate-pulse"
+                    alt="weather icon"
+                  />
+                </div>
               </div>
 
               {weatherLoading && (

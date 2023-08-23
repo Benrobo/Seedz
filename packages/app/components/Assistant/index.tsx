@@ -15,8 +15,16 @@ const chatLanguages = [
     code: "en",
   },
   {
-    name: "Nigerian Pidgin English",
+    name: "Nigerian Pidgin",
     code: "pcm",
+  },
+  {
+    name: "Yoruba",
+    code: "yr",
+  },
+  {
+    name: "French",
+    code: "fr",
   },
 ];
 

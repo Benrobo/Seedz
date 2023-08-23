@@ -22,20 +22,6 @@ export default async function webhookHandler(
       console.log(data);
 
       if (event === "user.created") {
-        const ipAddr = req.headers["x-real-ip"] || req.connection.remoteAddress;
-        const localIp = ["::ffff:127.0.0.1", "::1"];
-        const userRole = memecache.get(
-          localIp.includes(ipAddr as string) ? "::1" : ipAddr
-        );
-
-        console.log(`Webhook IP: ${ipAddr}`);
-
-        if (userRole === null) {
-          console.log("Failed to save user data.");
-          return;
-        }
-
-        // update user data
         const whUserData = (data as any).data;
         const email = whUserData?.email_addresses[0]?.email_address;
 
@@ -56,7 +42,7 @@ export default async function webhookHandler(
               whUserData.first_name.toLowerCase() + genID(4),
             fullname: `${whUserData.first_name} ${whUserData.last_name ?? ""}`,
             email,
-            role: userRole,
+            role: "BUYER",
             wallet: {
               create: {
                 currency: "NGN",
@@ -67,9 +53,7 @@ export default async function webhookHandler(
           },
         });
 
-        memecache.del(localIp.includes(ipAddr as string) ? "::1" : ipAddr);
-
-        console.log(`${email} [${userRole}]: Registered successfully`);
+        console.log(`${email}: Registered successfully`);
         return;
       }
     }

@@ -25,6 +25,8 @@ const client = new ApolloClient({
   link: from([errorLink, httpLink]),
 });
 
+console.log({ server: ENV.serverUrl });
+
 // nprogress loader
 Router.events.on("routeChangeStart", nProgress.start);
 Router.events.on("routeChangeError", nProgress.done);

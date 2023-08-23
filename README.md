@@ -7,52 +7,67 @@
 [Agri App](https://play.google.com/store/apps/details?id=com.criyagen)
 [Agrizy](https://play.google.com/store/apps/details?id=in.agrizy.app)
 
-To empower small farmers by facilitating access to markets, buyers, suppliers, and agricultural knowledge, ultimately improving agricultural productivity and contributing to food security.
+To empower small farmers by facilitating access to markets, buyers, suppliers, and agricultural knowledge, ultimately improving agricultural productivity.
 
-Key Features:
+## Problem statement:
 
-Marketplace: The app will provide a digital marketplace where farmers can showcase their produce and connect with potential buyers. Buyers could include local consumers, restaurants, supermarkets, and even processors looking for raw materials.
+**Problem Statement**:
 
-Supplier Network: FarmConnect will also connect farmers with suppliers of seeds, fertilizers, equipment, and other agricultural inputs. This ensures that farmers have access to high-quality resources for improved yield.
+Imagine being a small-scale farmer with dreams of growth. But you're stuck with limited access to markets, critical farming knowledge, and even basic financial services. This holds back your productivity, income, and the potential to thrive. You're disconnected from buyers, lack vital insights for successful farming, and face financial hurdles due to network disruptions.
 
-Crop Management Tips: The app will offer advice on crop management, including planting, irrigation, pest control, and harvesting. These tips can be customized based on the user's location and specific crops.
+**Solution**:
 
-Weather Updates: Integrating weather forecasts and alerts will help farmers plan their activities more effectively, such as planting and harvesting, according to weather patterns.
+SeedzAI, your farming partner. I'm breaking down these barriers by offering a digital marketplace, AI-guided farming wisdom, and a robust wallet system. Now, you can reach markets, make smarter choices, and stay financially secure, no matter the network challenges. It's your growth, made accessible.
 
-Knowledge Sharing: FarmConnect will have a community forum where farmers can share their experiences, ask questions, and exchange advice with each other. Experts and agricultural extension workers could also participate in the forum.
+### Key Features:
 
-Localized Content: The app can provide content in local languages to ensure that farmers of all educational backgrounds can benefit from its features.
+- **Marketplace** : Seedz provides a digital marketplace where farmers can showcase their produce and connect with potential buyers. Buyers could include local consumers, restaurants, supermarkets, and even processors looking for raw materials.
 
-Notifications: Users can receive timely notifications about market trends, agricultural workshops, and new products in the supplier network.
+- **Wallet System** : During bank providers network failure, farmers / buyers / suppliers could easily topUp their wallet using paystack, and easily order items from their available wallet balance.
 
-Data Analytics: Over time, the app could collect data on crop yields, market demand, and user preferences. This data can help identify trends and improve decision-making for both farmers and buyers.
+- **Product Showcase** : Merchant also known as farmers and Suppliers could easily upload their products for sale. Products can also be specified as either Rent or Buy which allows customers to be more flexible when purchasing a goods.
 
-# Features
+- **Weather Updates**: Integrating weather forecasts and alerts will help farmers plan their activities more effectively, such as planting and harvesting, according to weather patterns.
 
-Users should be able to signup as :
+- **SeedzAI** : SeedzAI is an advanced AI designed specifically to assist farmers in the realm of agriculture. It provides expert insights, guidance, and support on various topics related to crop cultivation, livestock management, sustainable practices, farm equipment, pest control, soil health, and more. Its purpose is to offer valuable assistance and contribute positively to the farming community’s knowledge and success.
 
-- Buyer
+  SeedzAI is also able to respond in 2 different local languages known as English and Nigeria Pidgin to foster better communication.
 
-  - Buying or Ordering of goods
-  - Provision of delivery address is also important.
-  - Credit of wallet would be done.
+## Technology Stack
 
-- Supplier
-  - Buying or Ordering of goods
-  - Provision of delivery address is also important.
-  - Upload of supplier items
-  - Credit of wallet would be done.
-- Merchant
-  - Buying or Ordering of goods
-  - Provision of delivery address
-  - Uploading of farm produce.
-  - AI chatbot assistant.
+For a seamless experience for farmers and consumers, SeedzAI was developed using the following technology stack:
 
-# Core Feat
+- ### Backend
 
-1. Authentication /Authorization ( Clerk )
-2. Payment system ( paystack )
-3. Top up / Withdraw via flutterwave
-4. Media Upload
-5. Ordering system
-6.
+  - [Nextjs (API)](https://nextjs.org/) :- A react fullstack javscript framework.
+  - [Postgresql](https://www.postgresql.org/) :- A relational database.
+  - [Supabase](https://supabase.com/) :- The open source Firebase alternative.
+  - [Paystack](https://paystack.com/) :- A Simple, easy payments solution.
+  - [Resend](https://resend.com/) :- A Platform meant for sending mails.
+  - [OpenAI API](https://openai.com/) :- OpenAI API empowers developers to integrate advanced AI capabilities into apps, enabling human-like language understanding and generation, solving complex problems, and performing diverse tasks using sophisticated machine learning models.
+  - [Cloudinary](https://cloudinary.com/) :- A media storage and manipulation platform.
+  - [Clerk](https://clerk.com/) :- A standalone and powerful authentication / authorization platform.
+  - [GraphQL](https://graphql.org/) :- A query language builder for API.
+  - [Apollo Server](https://www.apollographql.com/) :- The GraphQL developer platform.
+
+- ### Frontend
+
+  - [Nextjs](https://nextjs.org/) :- A react framework.
+  - [Tailwindcss](https://tailwindcss.com/) :- a Css utility framework.
+  - [Blurhash](https://blurha.sh/) :- a compact representation of a placeholder for an image.
+  - [Clerk](https://clerk.com/) :- A standalone and powerful authentication / authorization platform.
+  - [Apollo Client](https://www.apollographql.com/) :- The GraphQL developer platform.
+
+- ### Deployment
+  - [Vercel](https://vercel.com/) :- A PaaS deployment platform.
+
+## Acknowledgement
+
+Huge thanks to the [GenzHackfest]() team for making this hackathon happen! I've gained so much knowledge in such a short time. 🙌 Despite the countless sleepless nights, I learned, built, and deployed this project in just 3 days – it's been an incredible accomplishment. I'm amazed by what I achieved in such a short time! Most of the tech I used was new to me, but this hackfest pushed me to learn fast 🚀.
+
+Even though this project isn't perfect, considering the timeline spent, developing this to an MVP stage was worth it in the end. Can't wait to see the next milestone with this.
+🎉 Thank you for this opportunity and a big shoutout to the team and contributors – your efforts will definitely pay off! 👏
+
+### Collaborator
+
+- [Benaiah Alumona](https://github.com/benrobo)

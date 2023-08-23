@@ -11,7 +11,7 @@ const seedzAiTypeDef = gql`
   }
 
   type AiOutput {
-    answer: String!
+    answer: [String]!
     lang: String!
     success: Boolean!
   }

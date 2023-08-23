@@ -9,6 +9,14 @@
 
 To empower small farmers by facilitating access to markets, buyers, suppliers, and agricultural knowledge, ultimately improving agricultural productivity.
 
+<div style="text-align:start">
+<img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/1.png" width="300" />
+<img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/2.png" width="300" />
+<img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/3.png" width="300" />
+<img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/4.png" width="300" />
+<img src="https://raw.githubusercontent.com/Benrobo/Seedz/main/md-img/5.png" width="300" />
+</div>
+
 ## Problem statement:
 
 **Problem Statement**:

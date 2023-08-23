@@ -86,3 +86,5 @@ export type SeedzAiPayload = {
   question: string;
   lang: string;
 };
+
+declare module "micro-cors";

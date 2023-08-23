@@ -19,6 +19,7 @@ const paymentResolvers = {
       context: any,
       info: any
     ) => {
+      console.log(context);
       // isAuthenticated middleware
       isAuthenticated(context);
       return await paymentController.fundWallet(

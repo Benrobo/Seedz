@@ -7,7 +7,7 @@ const ENV = {
   serverUrl:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000/api/graphql"
-      : process.env.BACKEND_URL,
+      : "https://seedz.vercel.app/api/graphql",
 };
 
 export default ENV;

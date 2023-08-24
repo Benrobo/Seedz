@@ -31,7 +31,7 @@ export async function isLoggedIn(req: NextApiRequest) {
     }
   } catch (e: any) {
     console.log(e);
-    console.error(`invalid 4snap token: ${e?.message}`);
+    console.error(`invalid seedz token: ${e?.message}`);
     throw new ServerResponseError(
       "INVALID_TOKEN",
       "Authorization token is invalid"

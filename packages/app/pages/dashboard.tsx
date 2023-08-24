@@ -419,7 +419,7 @@ function CreateNewUserModal({
   const validRoles = [
     { name: "Merchant", icon: "💼", role: "MERCHANT" },
     { name: "Buyer", icon: "🛍️", role: "BUYER" },
-    { name: "Supplier", icon: "📦", role: "SUPPLIER" },
+    // { name: "Supplier", icon: "📦", role: "SUPPLIER" },
   ];
 
   const selectedRoles = (name: string) => {

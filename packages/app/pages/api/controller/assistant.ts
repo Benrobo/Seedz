@@ -51,7 +51,7 @@ async function seedzAIAssistant(payload: SeedzAiPayload) {
     validLang.filter((l) => l.code === lang)[0]?.name ?? "English";
   const prompt = CUSTOM_PROMPT.replaceAll("{{language}}", sanitizedLang);
 
-  console.log(prompt);
+  //   console.log(prompt);
 
   const result = await openAiCompletion(prompt, question);
 
@@ -139,6 +139,7 @@ async function openAiCompletion(prompt: string, message: string) {
 
     return resp;
   } catch (e: any) {
+    console.log(e);
     console.log(e?.response?.data);
     const msg =
       e?.response?.data?.error?.message ??

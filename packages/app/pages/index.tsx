@@ -6,8 +6,6 @@ import React from "react";
 function Home() {
   const { seedzUserInfo } = useAuth();
 
-  console.log(seedzUserInfo);
-
   return (
     <div className="w-full h-[100vh] bg-green-700 flex flex-col items-center justify-center px-[4em] ">
       <div className="w-auto absolute top-2 right-4">

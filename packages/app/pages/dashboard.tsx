@@ -205,7 +205,7 @@ function Dashboard() {
 
         <div className="w-full h-[100vh] relative bg-white-100 flex flex-col items-center justify-start overflow-x-hidden ">
           <div className="w-full h-[650px] relative overflow-hidden bg-dark-100 before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg] flex items-start justify-start ">
-            <div className="w-full z-[1] flex items-start justify-between px-[1.5em] md:px-[3em] mt-[4em] ">
+            <div className="w-full z-[1] flex items-start justify-between px-[1em] md:px-[3em] mt-[2em] md:mt-[4em] ">
               <div className="w-full flex flex-col items-start justify-start">
                 <h1 className="N-EB text-white-200 text-[28px] max-w-[250px] ">
                   Welcome,{" "}
@@ -270,7 +270,7 @@ function Dashboard() {
           </div>
 
           {/* Wallet Section */}
-          <div className="w-full relative z-[100] top-[-3.5em]  flex flex-col items-center justify-center px-[1.3em] md:px-[3.5em]  ">
+          <div className="w-full relative z-[100] top-[-3.5em]  flex flex-col items-center justify-center px-[1em] md:px-[3.5em]  ">
             {/* style needed to add a mini box uder the div */}
             {/* before:content-[''] before:w-[70%] before:h-[100px] before:z-[-5] before:absolute before:bottom-[-.7em] before:mx-auto before:bg-green-300 before:shadow-sm before:rounded-[20px] */}
             <div className="w-full z-[2] relative flex flex-col items-center justify-center bg-white-100 shadow-lg rounded-[10px] py-5 ">
@@ -280,7 +280,7 @@ function Dashboard() {
               <h1 className="N-EB text-4xl mt-4 text-dark-100">
                 {formatCurrency(+userInfo?.wallet?.balance ?? 0, "NGN")}
               </h1>
-              <div className="w-full px-[2em] flex items-center justify-between mt-4">
+              <div className="w-full px-[1em] md:px-[2em] flex items-center justify-between mt-4">
                 <button
                   className="px-6 py-3 rounded-[30px] flex items-center justify-between bg-green-600 text-white-100 ppR"
                   onClick={() => setWalletTopup(!walletTopup)}

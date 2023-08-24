@@ -330,7 +330,7 @@ function Dashboard() {
                       weatherInfo?.icon ??
                       "https://openweathermap.org/img/wn/04n@2x.png"
                     }
-                    className="shadow-lg animate-pulse"
+                    className="shadow-lg w-[70px] scale-[2] animate-pulse"
                     alt="weather icon"
                   />
                 </div>

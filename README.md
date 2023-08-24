@@ -55,7 +55,7 @@ For a seamless experience for farmers and consumers, SeedzAI was developed using
   - [Resend](https://resend.com/) :- A Platform meant for sending mails.
   - [OpenAI API](https://openai.com/) :- OpenAI API empowers developers to integrate advanced AI capabilities into apps, enabling human-like language understanding and generation, solving complex problems, and performing diverse tasks using sophisticated machine learning models.
   - [Cloudinary](https://cloudinary.com/) :- A media storage and manipulation platform.
-  - [Clerk](https://clerk.com/) :- A standalone and powerful authentication / authorization platform.
+  - [Passage](https://docs.passage.id/) :- A standalone and powerful authentication / authorization platform.
   - [GraphQL](https://graphql.org/) :- A query language builder for API.
   - [Apollo Server](https://www.apollographql.com/) :- The GraphQL developer platform.
 
@@ -64,7 +64,7 @@ For a seamless experience for farmers and consumers, SeedzAI was developed using
   - [Nextjs](https://nextjs.org/) :- A react framework.
   - [Tailwindcss](https://tailwindcss.com/) :- a Css utility framework.
   - [Blurhash](https://blurha.sh/) :- a compact representation of a placeholder for an image.
-  - [Clerk](https://clerk.com/) :- A standalone and powerful authentication / authorization platform.
+  - [Passage](https://docs.passage.id/) :- A standalone and powerful authentication / authorization platform.
   - [Apollo Client](https://www.apollographql.com/) :- The GraphQL developer platform.
 
 - ### Deployment

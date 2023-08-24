@@ -1,12 +1,7 @@
-import {
-  ApiAddProductProp,
-  ApiProductCheckoutProps,
-  CreateUserType,
-} from "../../../../@types";
-import prisma from "../../config/prisma";
+import { ApiAddProductProp, ApiProductCheckoutProps } from "../../../../@types";
 import ProductController from "../../controller/product";
-import ServerResponseError from "../../helper/errorHandler";
-import { isAuthenticated, notBuyer } from "../middlewares/auth";
+import { isLoggedIn } from "../middlewares/auth";
+import { notBuyer } from "../middlewares/auth";
 
 const productController = new ProductController();
 
@@ -24,12 +19,12 @@ const productResolvers = {
       info: any
     ) => {
       // isAuthenticated middleware
-      isAuthenticated(context);
+      await isLoggedIn(context.req);
 
       // notBuyer middleware
-      await notBuyer(context);
+      await notBuyer(context.userId);
 
-      return await productController.addProduct(payload, context.user.id);
+      return await productController.addProduct(payload, context.userId);
     },
     deleteProduct: async (
       parent: any,
@@ -38,12 +33,12 @@ const productResolvers = {
       info: any
     ) => {
       // isAuthenticated middleware
-      isAuthenticated(context);
+      await isLoggedIn(context.req);
 
       // notBuyer middleware
-      await notBuyer(context);
+      await notBuyer(context.userId);
 
-      return await productController.deleteProduct(prodId, context.user.id);
+      return await productController.deleteProduct(prodId, context.userId);
     },
     productCheckout: async (
       parent: any,
@@ -51,9 +46,9 @@ const productResolvers = {
       context: any,
       info: any
     ) => {
-      isAuthenticated(context);
+      await isLoggedIn(context.req);
 
-      return await productController.productCheckout(payload, context.user.id);
+      return await productController.productCheckout(payload, context.userId);
     },
   },
 };

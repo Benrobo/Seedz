@@ -3,7 +3,6 @@ import BottomNav from "@/components/BottomNav";
 import Layout, { MobileLayout } from "@/components/Layout";
 import { ChildBlurModal } from "@/components/Modal";
 import withAuth from "@/helpers/withAuth";
-import { UserButton, useAuth } from "@clerk/nextjs";
 import React from "react";
 import { BiCurrentLocation } from "react-icons/bi";
 import { BsBank2, BsFillCloudLightningRainFill } from "react-icons/bs";
@@ -12,7 +11,7 @@ import { IoAddOutline, IoCashOutline } from "react-icons/io5";
 import { MdDoubleArrow, MdVerified } from "react-icons/md";
 import { formatCurrency, formatNumLocale } from "./api/helper";
 import { useMutation, useQuery } from "@apollo/client";
-import { FundWallet, GetUserInfo, UpdateUserRole } from "../http";
+import { CreateNewUser, FundWallet, GetUserInfo } from "../http";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
 import { UserType } from "../@types";
@@ -22,23 +21,24 @@ import Assistant from "@/components/Assistant";
 import useWeather from "@/helpers/useWeather";
 import moment from "moment";
 import ImageTag from "@/components/Image";
+import useAuth from "@/helpers/useIsAuth";
+import Link from "next/link";
+import { twMerge } from "tailwind-merge";
+import { Passage } from "@passageidentity/passage-js";
+import { IoIosLogOut } from "react-icons/io";
+
+const passage = new Passage("8SK9OUCCPs6xoNP6ieaVuucz");
+const passageUser = passage.getCurrentUser();
 
 function Dashboard() {
-  const { userId } = useAuth();
+  const seedzUseAuth = useAuth();
   const hasRendered = useIsRendered(5);
   const [walletTopup, setWalletTopup] = React.useState(false);
   const [topUpAmount, setTopUpAmount] = React.useState(0);
-  const [updateUserRole, updateUserRoleProps] = useMutation(UpdateUserRole, {
-    errorPolicy: "all",
-  });
-  const [hasRoleUpdated, setHasRoleUpdated] = React.useState(false);
+  const [userCreateModal, setUserCreateModal] = React.useState(false);
   const [fundWallet, { loading, error, data, reset }] = useMutation(FundWallet);
-  const userQuery = useQuery(GetUserInfo, {
-    variables: {
-      userId: userId,
-    },
-    skip: hasRoleUpdated === false ? true : false,
-  });
+  const userQuery = useQuery(GetUserInfo);
+  const [createUsetMut, createUserMutProps] = useMutation(CreateNewUser);
   const [userInfo, setUserInfo] = React.useState<UserType>({} as UserType);
   const [assistantModal, setAssistantModal] = React.useState(false);
   const {
@@ -47,12 +47,14 @@ function Dashboard() {
     loading: weatherLoading,
     weatherInfo,
   } = useWeather();
+  const [passageUserLoading, setPassageUserLoading] = React.useState(false);
+  const [logoutModal, setLogoutModal] = React.useState(false);
 
-  const MAX_FUND_AMOUNT = 500;
+  const MIN_FUND_AMOUNT = 500;
 
   const creditWallet = () => {
-    if (topUpAmount < MAX_FUND_AMOUNT) {
-      toast.error(`amount can't be less than ${MAX_FUND_AMOUNT}`);
+    if (topUpAmount < MIN_FUND_AMOUNT) {
+      toast.error(`amount can't be less than ${MIN_FUND_AMOUNT}`);
       return;
     }
     fundWallet({
@@ -71,30 +73,18 @@ function Dashboard() {
 
   React.useEffect(() => {
     if (hasRendered) {
-      const hasRoleUpdated =
-        localStorage.getItem("@hasRoleUpdated") === null
-          ? null
-          : JSON.parse(localStorage.getItem("@hasRoleUpdated") as string);
-      if (hasRoleUpdated === null) {
-        updateRole();
-      } else {
-        setHasRoleUpdated(hasRoleUpdated);
-      }
+      // const hasRoleUpdated =
+      //   localStorage.getItem("@hasRoleUpdated") === null
+      //     ? null
+      //     : JSON.parse(localStorage.getItem("@hasRoleUpdated") as string);
+      // if (hasRoleUpdated === null) {
+      //   // updateRole();
+      // } else {
+      //   // setHasRoleUpdated(hasRoleUpdated);
+      // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasRendered]);
-
-  // updateRole
-  React.useEffect(() => {
-    updateUserRoleProps.reset();
-    if (updateUserRoleProps.error) {
-      updateRole();
-    } else if (updateUserRoleProps.data?.updateUserRole.success) {
-      localStorage.setItem("@hasRoleUpdated", JSON.stringify(true) as string);
-      setHasRoleUpdated(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateUserRoleProps.data, updateUserRoleProps.error]);
 
   // fundwallet mutation
   React.useEffect(() => {
@@ -113,10 +103,16 @@ function Dashboard() {
 
   // fetch user info
   React.useEffect(() => {
-    if (hasRoleUpdated === false) return;
     if (userQuery.error) {
       // console.log(data);
-      handleApolloHttpErrors(userQuery.error);
+      const networkError = userQuery.error.networkError as any;
+      const errorObj =
+        networkError?.result?.errors[0] ?? userQuery.error.graphQLErrors[0];
+      if (errorObj.code === "NO_USER_FOUND") {
+        setUserCreateModal(true);
+      } else {
+        handleApolloHttpErrors(userQuery.error);
+      }
     } else if (typeof userQuery.data?.getUser?.email !== "undefined") {
       const info = userQuery.data?.getUser;
       localStorage.setItem(
@@ -130,36 +126,81 @@ function Dashboard() {
         })
       );
       setUserInfo(info);
+      setUserCreateModal(false);
+    } else {
+      // noi user data available
+      const info = userQuery.data?.getUser;
+      if (info === null) {
+        setUserCreateModal(true);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userQuery.data, userQuery.error]);
 
-  // run the updaterole mutation
-  function updateRole() {
-    const role =
-      localStorage.getItem("@userRole") === null
-        ? null
-        : JSON.parse(localStorage.getItem("@userRole") as string);
+  // creatingf of user
+  React.useEffect(() => {
+    createUserMutProps.reset();
+    if (createUserMutProps.error) {
+      handleApolloHttpErrors(createUserMutProps?.error);
+    } else if (createUserMutProps.data?.createUser?.success) {
+      console.log(createUserMutProps.data);
+      toast.success("Changes Saved");
+      window.location.reload();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createUserMutProps.data, createUserMutProps.error]);
 
-    updateUserRole({
-      variables: { role: role ?? "BUYER" },
-    });
+  async function createUser(role: string) {
+    setPassageUserLoading(true);
+    const userInfo = await passageUser.userInfo();
+    if (userInfo) {
+      setPassageUserLoading(false);
+      const { email, user_metadata } = userInfo;
+      const payload = {
+        email,
+        username: user_metadata?.username,
+        fullname: user_metadata?.fullname,
+        role,
+      };
+
+      if (role.length === 0) {
+        toast.error("Please select a role.");
+        return;
+      }
+
+      setUserCreateModal(false);
+      createUsetMut({
+        variables: { payload },
+      });
+    }
   }
 
-  console.log(userInfo);
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = "/auth";
+  };
 
   return (
     <Layout className="bg-white-105 overflow-y-hidden">
       <MobileLayout activePage="dashboard" className="overflow-hidden">
         {!hasRendered ||
         userQuery.loading === true ||
-        updateUserRoleProps.loading ? (
+        createUserMutProps.loading ? (
           <ChildBlurModal isBlurBg isOpen={true}>
             <div className="w-full flex flex-col items-center justify-center">
               <Spinner color="#012922" />
             </div>
           </ChildBlurModal>
         ) : null}
+
+        {/* Modal meant t o create user first time before refetching */}
+        {userCreateModal && (
+          <CreateNewUserModal
+            psgUserLoading={passageUserLoading}
+            createUser={createUser}
+          />
+        )}
+
         <div className="w-full h-[100vh] relative bg-white-100 flex flex-col items-center justify-start overflow-x-hidden ">
           <div className="w-full h-[650px] relative overflow-hidden bg-dark-100 before:content-[''] before:absolute before:top-[-10em] before:left-[5em] before:w-[60%] before:h-[100vh] before:bg-dark-200 before:rotate-[120deg] flex items-start justify-start ">
             <div className="w-full z-[1] flex items-start justify-between px-[1.5em] md:px-[3em] mt-[4em] ">
@@ -174,13 +215,53 @@ function Dashboard() {
                   Empowering Farmers, Enhancing Productivity
                 </p>
               </div>
-              <div className="w-auto flex flex-col items-end justify-end">
-                <UserButton afterSignOutUrl="/" />
+              <div className="w-auto relative flex flex-col items-center justify-center">
+                <button
+                  className="w-[40px] h-[40px] bg-dark2-300 p-1 rounded-[50%] border-solid border-[3px] hover:scale-[.85] border-green-600 scale-[.80] transition-all"
+                  onClick={() => setLogoutModal(!logoutModal)}
+                >
+                  <ImageTag alt="user image" src={userInfo?.image} />
+                </button>
                 <div className="w-full flex items-center mt-3 justify-center">
                   <MdVerified color={rolebadgeColor(userInfo.role)} />
                   <span className="text-white-300 px-2 py-1 flex items-center justify-center rounded-[30px] bg-dark-300 N-B text-[10px] ml-2 ">
                     {userInfo.role}
                   </span>
+                </div>
+
+                {/* Logout modal */}
+                <div
+                  className={`w-full h-auto min-w-[250px] rounded-lg absolute ${
+                    logoutModal ? "top-[-2em]" : "top-[-20em]"
+                  } right-[4em] bg-white-100 flex flex-col shadow-xl py-2 px-3 z-[1200] transition-all `}
+                >
+                  <div className="w-full flex items-start justify-start">
+                    <button className="w-[40px] h-[40px] bg-dark2-300 p-1 rounded-[50%] border-green-600 transition-all">
+                      <ImageTag
+                        alt="user image"
+                        className="w-full"
+                        src={userInfo?.image}
+                      />
+                    </button>
+                    <div className="w-auto px-2 flex flex-col items-start justify-">
+                      <p className="text-dark-200 text-[13px] N-B">
+                        {userInfo?.fullname}
+                      </p>
+                      <p className="text-white-400 text-[10px] ppR">
+                        {userInfo?.email}
+                      </p>
+                    </div>
+                  </div>
+                  <br />
+                  <div className="w-full flex flex-col items-center justify-center mb-3">
+                    <button
+                      className="px-3 py-2 w-full bg-none hover:bg-white-300 rounded-md flex items-center justify-start text-[12px] N-B gap-4 "
+                      onClick={logout}
+                    >
+                      <IoIosLogOut size={20} />
+                      Logout
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -307,6 +388,8 @@ function Dashboard() {
           </div>
         </ChildBlurModal>
 
+        {/* Logout Modal */}
+
         {/* Assistance */}
         <Assistant
           isOpen={assistantModal}
@@ -319,3 +402,76 @@ function Dashboard() {
 }
 
 export default withAuth(Dashboard);
+
+interface CreateNewUserProps {
+  createUser: (role: string) => void;
+  psgUserLoading: boolean;
+}
+
+function CreateNewUserModal({
+  createUser,
+  psgUserLoading,
+}: CreateNewUserProps) {
+  const [role, setRole] = React.useState("");
+
+  const validRoles = [
+    { name: "Merchant", icon: "💼", role: "MERCHANT" },
+    { name: "Buyer", icon: "🛍️", role: "BUYER" },
+    { name: "Supplier", icon: "📦", role: "SUPPLIER" },
+  ];
+
+  const selectedRoles = (name: string) => {
+    const filteredRole = validRoles.filter((role) => role.name === name)[0];
+    if (filteredRole.role === role) setRole("");
+    if (filteredRole.role !== role) setRole(filteredRole.role);
+  };
+
+  return (
+    <ChildBlurModal isBlurBg isOpen={true} className="bg-green-600">
+      <div className="w-full h-[100vh] max-w-[500px] flex flex-col items-center justify-center">
+        <div className="w-full h-auto flex items-center justify-center">
+          <div className="w-auto flex items-center justify-center">
+            <Link href="/">
+              <ImageTag
+                src="/assets/img/logo/leaf-logo.svg"
+                className="w-[70px] h-[70px] bg-white-100 p-1 scale-[.85] shadow-xl rounded-[50%]  "
+                alt="seedz"
+              />
+            </Link>
+            <span className="N-EB text-[30px] text-white-100">Seedz</span>
+          </div>
+        </div>
+        <br />
+        <br />
+        <div className="w-full max-w-[450px] h-[400px] flex-wrap px-[2em] py-[3em] flex items-center justify-center gap-2 rounded-md">
+          <div className="w-full flex flex-col items-center text-center">
+            <p className="text-white-100 N-B ">What your Role?</p>
+          </div>
+          {validRoles.map((d) => (
+            <button
+              onClick={() => selectedRoles(d.name)}
+              key={d.name}
+              className={twMerge(
+                "w-[120px] bg-white-100 scale-[.70] shadow-2xl px-5 py-5 rounded-lg flex flex-col items-center justify-center border-[5px] border-transparent ",
+                d.role === role && "border-solid border-[5px] border-dark-100 "
+              )}
+            >
+              <span className="text-3xl ">{d.icon}</span>
+              <p className="text-green-700 text-1xl mt-2 N-EB ">{d.name}</p>
+            </button>
+          ))}
+          <div className="w-full mt-5 flex flex-col items-center justify-center px-[4em] ">
+            <button
+              className="w-auto bg-green-600 text-white-100 shadow-2xl px-8 py-2 text-[14px] N-B rounded-[30px] flex flex-col items-center justify-center hover:bg-dark-100 hover:border-green-600 border-solid border-[3px] border-transparent transition-all"
+              onClick={() => {
+                createUser(role);
+              }}
+            >
+              {psgUserLoading ? <Spinner color="#fff" /> : "Save Changes"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ChildBlurModal>
+  );
+}

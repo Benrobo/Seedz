@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
-export const UpdateUserRole = gql`
-  mutation UserMutation($role: Role!) {
-    updateUserRole(role: $role) {
+export const CreateNewUser = gql`
+  mutation CreateUserMutation($payload: CreateUserMut!) {
+    createUser(payload: $payload) {
       success
     }
   }
@@ -19,8 +19,8 @@ export const FundWallet = gql`
 `;
 
 export const GetUserInfo = gql`
-  query UserQuery($userId: String!) {
-    getUser(id: $userId) {
+  query UserQuery {
+    getUser {
       email
       username
       fullname

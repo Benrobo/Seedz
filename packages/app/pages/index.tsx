@@ -1,15 +1,15 @@
 import ImageTag from "@/components/Image";
-import { UserButton, useAuth } from "@clerk/nextjs";
+import useAuth from "@/helpers/useIsAuth";
 import Link from "next/link";
 import React from "react";
 
 function Home() {
-  const { userId } = useAuth();
+  const { seedzUserInfo } = useAuth();
 
   return (
     <div className="w-full h-[100vh] bg-green-700 flex flex-col items-center justify-center px-[4em] ">
       <div className="w-auto absolute top-2 right-4">
-        <UserButton />
+        {/* <UserButton /> */}
       </div>
       <div className="w-full h-[100vh] flex flex-col items-center justify-center">
         <div className="w-full h-auto flex flex-col items-center justify-center">
@@ -27,7 +27,7 @@ function Home() {
             </p>
             <br />
             <br />
-            {userId === null ? (
+            {seedzUserInfo?.id === null ? (
               <Link
                 className="w-full max-w-[300px] bg-green-600 text-white-100 rounded-[30px] ppM text-[14px] flex items-center justify-center text-center px-3 py-3"
                 href="/auth/login"

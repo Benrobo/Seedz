@@ -1,9 +1,22 @@
-declare module "markdown-it";
+declare namespace JSX {
+  import {
+    PassageElement,
+    PassageProfileElement,
+  } from "@passageidentity/passage-elements";
+  interface IntrinsicElements {
+    "passage-auth": PassageElement;
+    "passage-login": PassageElement;
+    "passage-register": PassageElement;
+    "passage-profile": PassageProfileElement;
+  }
+}
 
-declare module "react-speech-recognition";
 export interface CreateUserType {
   id: string;
   role: "MERCHANT" | "SUPPLIER" | "BUYER";
+  email: string;
+  username: string;
+  fullname: string;
 }
 
 export interface FundWalletType {

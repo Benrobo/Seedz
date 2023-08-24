@@ -1,8 +1,10 @@
 import Joi from "joi";
 
 export const CreateUserSchema = Joi.object({
-  id: Joi.string().required(),
   role: Joi.string().required(),
+  email: Joi.string().required(),
+  fullname: Joi.string().required(),
+  username: Joi.string().required(),
 });
 
 export const InitPaymentSchema = Joi.object({

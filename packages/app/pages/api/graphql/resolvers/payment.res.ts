@@ -2,7 +2,7 @@ import { CreateUserType } from "../../../../@types";
 import prisma from "../../config/prisma";
 import PaymentController from "../../controller/payment";
 import UserController from "../../controller/user";
-import { isAuthenticated } from "../middlewares/auth";
+import { isLoggedIn } from "../middlewares/auth";
 
 const paymentController = new PaymentController();
 
@@ -20,10 +20,10 @@ const paymentResolvers = {
       info: any
     ) => {
       // isAuthenticated middleware
-      isAuthenticated(context);
+      await isLoggedIn(context.req);
       return await paymentController.fundWallet(
         { amount, currency },
-        context.user.id
+        context.userId
       );
     },
   },

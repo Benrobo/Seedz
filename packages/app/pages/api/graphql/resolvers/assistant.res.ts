@@ -1,6 +1,6 @@
 import { SeedzAiPayload } from "@/@types";
 import seedzAIAssistant from "../../controller/assistant";
-import { isAuthenticated } from "../middlewares/auth";
+import { isLoggedIn } from "../middlewares/auth";
 
 const seedzAiResolvers = {
   Mutation: {
@@ -11,7 +11,7 @@ const seedzAiResolvers = {
       info: any
     ) => {
       // isAuthenticated middleware
-      isAuthenticated(context);
+      await isLoggedIn(context.req);
 
       return await seedzAIAssistant(payload);
     },

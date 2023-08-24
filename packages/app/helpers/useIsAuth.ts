@@ -1,11 +1,41 @@
-import { useAuth } from "@clerk/nextjs";
+import isAuthenticated from "@/utils/isAuthenticated";
+import React from "react";
 
-function useIsAuth() {
-  const { userId } = useAuth();
-  if (typeof userId === "undefined" || userId === null) {
-    return false;
-  }
-  return true;
+interface UserInfo {
+  email: string;
+  image: string;
+  fullname: string;
+  id: string;
+  role: string;
 }
 
-export default useIsAuth;
+function useAuth() {
+  const [loading, setLoading] = React.useState(false);
+  const [userInfo, setUserInfo] = React.useState({} as UserInfo);
+
+  React.useEffect(() => {
+    setLoading(true);
+    const token =
+      localStorage.getItem("psg_auth_token") === null
+        ? ""
+        : localStorage.getItem("psg_auth_token");
+    const isLoggedIn = isAuthenticated(token as string);
+
+    setLoading(false);
+
+    if (isLoggedIn) {
+      const user =
+        localStorage.getItem("@userInfo") === null
+          ? null
+          : JSON.parse(localStorage.getItem("@userInfo") as string);
+      setUserInfo(user);
+    }
+  }, []);
+
+  return {
+    isLoaded: loading === false ? true : false,
+    seedzUserInfo: userInfo,
+  };
+}
+
+export default useAuth;

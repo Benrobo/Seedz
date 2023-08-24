@@ -40,13 +40,13 @@ export default class UserController {
     return allUsers;
   }
 
-  async createUser(payload: CreateUserType) {
+  async createUser(payload: CreateUserType, userId: string) {
     const { error, value } = CreateUserSchema.validate(payload);
     if (this.isValidationError(error)) {
       throw new ServerResponseError("INVALID_FIELDS", (error as any).message);
     }
 
-    const { role, id } = payload;
+    const { role, email, fullname, username } = payload;
 
     // check if role is valid or not
     const validRole = ["MERCHANT", "SUPPLIER", "BUYER"];
@@ -58,7 +58,7 @@ export default class UserController {
     }
 
     // check if user with id already exists
-    const userExists = await prisma.users.findMany({ where: { id } });
+    const userExists = await prisma.users.findMany({ where: { id: userId } });
 
     if (userExists.length > 0) {
       throw new ServerResponseError(
@@ -71,12 +71,12 @@ export default class UserController {
     const defaultCurrency = "NGN";
     await prisma.users.create({
       data: {
-        id,
-        username: "",
-        fullname: "",
-        email: "",
+        id: userId,
+        username: `${username}${genID(5)}`,
+        fullname,
+        email,
         role,
-        image: "",
+        image: `https://api.dicebear.com/6.x/micah/svg?seed=${username}`,
         wallet: {
           create: {
             id: genID(20),
@@ -86,6 +86,8 @@ export default class UserController {
         },
       },
     });
+
+    console.log(`Account created: [${email}]`);
 
     return { success: true };
   }

@@ -24,10 +24,10 @@ import handleApolloHttpErrors from "../http/error";
 import StarRating from "@/components/StarRating";
 import { BsFillTrashFill } from "react-icons/bs";
 import { Blurhash } from "react-blurhash";
-import { useAuth } from "@clerk/nextjs";
+import useAuth from "@/helpers/useIsAuth";
 
 function Store() {
-  const { userId, isLoaded } = useAuth();
+  const { seedzUserInfo, isLoaded } = useAuth();
   const [addProductModal, setAddProductModal] = React.useState(false);
   const [imgUploading, setImgUploading] = React.useState(false);
   const [previewImg, setPreviewiMG] = React.useState("");
@@ -331,6 +331,8 @@ function Store() {
         : JSON.parse(localStorage.getItem("@userInfo") as string);
   }
 
+  console.log({ allProducts });
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="store" className="h-[100vh] overflow-y-hidden">
@@ -384,7 +386,7 @@ function Store() {
                   price={d?.price}
                   ratings={d?.ratings?.rate}
                   userId={(d as any)?.user?.id}
-                  authUserId={userId as string}
+                  authUserId={seedzUserInfo?.id as string}
                   handleProdSelection={handleProdSelection}
                   availableForRent={d?.availableForRent}
                   rentingPrice={d?.rentingPrice}

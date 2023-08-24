@@ -6,10 +6,11 @@ import userResolvers from "./resolvers/user.res";
 import { GraphQLError } from "graphql";
 import paymentResolvers from "./resolvers/payment.res";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getAuth } from "@clerk/nextjs/server";
+// import { getAuth } from "@clerk/nextjs/server";
 import productResolvers from "./resolvers/product.res";
 import seedzAiResolvers from "./resolvers/assistant.res";
 import Cors from "micro-cors";
+import { getAuth } from "./middlewares/auth";
 
 const cors = Cors();
 
@@ -21,17 +22,16 @@ const apolloServer = new ApolloServer({
     productResolvers,
     seedzAiResolvers,
   ],
-  context: ({ req }: { req: NextApiRequest }) => {
-    const { userId } = getAuth(req);
-    const user = { id: userId };
+  context: async ({ req }: { req: NextApiRequest }) => {
+    const { userId } = await getAuth(req);
 
     // Create a new context object by spreading properties from req and adding user
     const context = {
       req,
-      user,
+      userId,
     };
 
-    return { user };
+    return context;
   },
   formatError: (error: GraphQLError) => {
     // Return a different error message

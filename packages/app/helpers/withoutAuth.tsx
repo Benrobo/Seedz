@@ -1,26 +1,16 @@
-import React from "react";
-import { clerkClient, getAuth, buildClerkProps } from "@clerk/nextjs/server";
-import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
-import { useAuth } from "@clerk/nextjs";
-import useIsAuth from "./useIsAuth";
+import { useEffect } from "react";
+import Router, { useRouter } from "next/router";
+import isAuthenticated from "@/utils/isAuthenticated";
 
-interface WithAuthProps {
-  fn: () => React.ReactElement;
-  clerk?: any;
-}
-
-// mostly used for auth page
 const withoutAuth = <P extends {}>(
   WrappedComponent: React.ComponentType<P>
 ) => {
   const Wrapper: React.FC<P> = (props) => {
     const router = useRouter();
-    const isLoggedIn = useIsAuth();
-    const { isLoaded } = useAuth();
-
-    React.useEffect(() => {
-      if (isLoggedIn && isLoaded) {
+    useEffect(() => {
+      const token = localStorage.getItem("psg_auth_token");
+      const isLoggedIn = isAuthenticated(token as string);
+      if (isLoggedIn) {
         router.push("/dashboard");
       }
     });

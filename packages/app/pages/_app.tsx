@@ -1,4 +1,3 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "react-query";
 import {
@@ -42,10 +41,8 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
       <QueryClientProvider client={queryClient}>
-        <ClerkProvider {...pageProps}>
-          <Component {...pageProps} />
-          <Toaster />
-        </ClerkProvider>
+        <Component {...pageProps} />
+        <Toaster />
       </QueryClientProvider>
     </ApolloProvider>
   );

@@ -2,24 +2,21 @@ import gql from "graphql-tag";
 
 const userTypeDef = gql`
   type Query {
-    getUser(id: String!): User
+    getUser: User # you need to be logged in to fufill this request
     getUsers: [User]
   }
 
   type Mutation {
     createUser(payload: CreateUserMut!): CreateUserMutOutput
-    updateUserRole(role: Role!): UpdateUserRoleOup
   }
 
   # Beginning of  QUE/MUT Fields
   #   Create user mutation
   input CreateUserMut {
-    role: String!
-    id: String!
-  }
-
-  type UpdateUserRoleOup {
-    success: Boolean!
+    role: Role!
+    email: String!
+    username: String!
+    fullname: String!
   }
 
   type CreateUserMutOutput {

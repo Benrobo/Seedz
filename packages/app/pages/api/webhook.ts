@@ -9,6 +9,9 @@ import memecache from "memory-cache";
 
 const secret = process.env.CLERK_WH_SECRET as string;
 
+// this is meant to handle clerk webhook at the point of developing this
+// but later switched to passage due to some reasons.
+
 export default async function webhookHandler(
   req: NextApiRequest,
   res: NextApiResponse

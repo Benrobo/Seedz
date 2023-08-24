@@ -134,6 +134,21 @@ export default class ProductController {
       quantity,
     } = payload;
 
+    // check if prod is avaiilable for rent
+    if (availableForRent && rentingPrice <= 0) {
+      throw new ServerResponseError(
+        "MISSING_RENTING_PRICE",
+        "renting price is missing"
+      );
+    }
+
+    if (availableForRent === false && price <= 0) {
+      throw new ServerResponseError(
+        "MISSING_BUYING_PRICE",
+        "product buying price is missing"
+      );
+    }
+
     await prisma.products.create({
       data: {
         id: genID(20),

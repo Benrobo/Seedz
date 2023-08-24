@@ -5,7 +5,7 @@ import { CurrencySymbol, formatCurrency, genID } from "./api/helper";
 import { AiFillEdit, AiOutlineShopping } from "react-icons/ai";
 import withAuth from "@/helpers/withAuth";
 import { ChildBlurModal } from "@/components/Modal";
-import { FaLongArrowAltLeft } from "react-icons/fa";
+import { FaLongArrowAltLeft, FaStar } from "react-icons/fa";
 import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
 import { AddProductInfoType, AllProductProp } from "../@types";
 import toast from "react-hot-toast";
@@ -25,9 +25,10 @@ import StarRating from "@/components/StarRating";
 import { BsFillTrashFill } from "react-icons/bs";
 import { Blurhash } from "react-blurhash";
 import useAuth from "@/helpers/useIsAuth";
+import { isEmpty } from "@/utils";
 
 function Store() {
-  const { seedzUserInfo, isLoaded } = useAuth();
+  const { seedzUserInfo, isLoading } = useAuth();
   const [addProductModal, setAddProductModal] = React.useState(false);
   const [imgUploading, setImgUploading] = React.useState(false);
   const [previewImg, setPreviewiMG] = React.useState("");
@@ -168,9 +169,19 @@ function Store() {
 
     if (availableForRent && price > 0) {
       payload["price"] = 0;
-    } else {
+    }
+    if (availableForRent) {
+      payload["price"] = 0;
+      payload["rentingPrice"] = +rentingPrice;
+    }
+    if (availableForRent === false) {
       payload["price"] = +price;
       payload["rentingPrice"] = 0;
+    }
+
+    if (isEmpty(payload.image?.url) || isEmpty(payload.image?.hash)) {
+      toast.error("Upload product image");
+      return;
     }
 
     addProductMutation({
@@ -331,8 +342,6 @@ function Store() {
         : JSON.parse(localStorage.getItem("@userInfo") as string);
   }
 
-  console.log({ allProducts });
-
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="store" className="h-[100vh] overflow-y-hidden">
@@ -369,12 +378,12 @@ function Store() {
               </p>
             </div>
           )}
-          {allProductsQuery.loading && (
-            <div className="w-full h-full flex flex-col items-center justify-center">
+          {allProductsQuery.loading || isLoading ? (
+            <div className="w-full h-auto flex flex-col items-center justify-center">
               <Spinner color="#000" />
             </div>
-          )}
-          {allProductsQuery.loading === false && isLoaded ? (
+          ) : null}
+          {allProductsQuery.loading === false && !isLoading ? (
             allProducts.length > 0 ? (
               allProducts.map((d) => (
                 <ItemCard
@@ -827,10 +836,20 @@ function ItemCard({
             {name?.length > 10 ? name.slice(0, 10) + "..." : name}
           </p>
           <div className="w-auto flex items-center justify-center">
-            <p className="w-auto flex items-center justify-center">
-              <span className="ppR text-[12px] mr-2 ">{avgRating}</span>
-            </p>
-            <StarRating averageRating={+avgRating} />
+            <span className="ppR text-[12px] mr-2 ">
+              <span className="text-white2-400">(</span>
+              {avgRating}
+              <span className="text-white2-400">)</span>
+            </span>
+            {/* <p className="w-auto flex items-center justify-center">
+            </p> */}
+            <FaStar
+              size={10}
+              className={`${
+                (avgRating as number) > 0 ? "text-yellow-300" : "text-white-400"
+              }`}
+            />
+            {/* <StarRating averageRating={1} /> */}
           </div>
         </div>
         <div className="w-full flex items-center justify-between mt-5">

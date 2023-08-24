@@ -119,6 +119,7 @@ function Dashboard() {
       localStorage.setItem(
         "@userInfo",
         JSON.stringify({
+          id: info?.id,
           email: info.email,
           username: info.username,
           fullname: info.fullname,

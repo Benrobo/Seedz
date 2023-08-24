@@ -21,6 +21,7 @@ export const FundWallet = gql`
 export const GetUserInfo = gql`
   query UserQuery {
     getUser {
+      id
       email
       username
       fullname

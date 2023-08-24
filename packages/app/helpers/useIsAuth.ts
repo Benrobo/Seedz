@@ -33,7 +33,7 @@ function useAuth() {
   }, []);
 
   return {
-    isLoaded: loading === false ? true : false,
+    isLoading: loading,
     seedzUserInfo: userInfo,
   };
 }

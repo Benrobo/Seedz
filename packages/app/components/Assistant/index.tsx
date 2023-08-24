@@ -182,25 +182,23 @@ function Assistant({
         className="w-full h-[100vh] bg-white-105 overflow-hidden "
       >
         <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden">
-          {messages?.length > 0 && (
-            <div className="w-full fixed top-0 py-3 flex items-center justify-between px-[1em] z-[100] backdrop-blur bg-white-100 bg-opacity-75 ">
-              <button
-                className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start top-1"
-                onClick={closeAssistantModal}
-              >
-                <IoIosArrowBack size={20} />
-                <p className="text-dark-100 text-[14px] ppM flex items-center justify-center gap-2">
-                  Back
-                </p>
-              </button>
-              <button
-                className="w-[40px] h-[40px] bg-white-300 rounded-[50%] ppM flex flex-col text-center items-center justify-center"
-                onClick={() => setSettingsModal(true)}
-              >
-                <BiCog size={20} />
-              </button>
-            </div>
-          )}
+          <div className="w-full fixed top-0 py-3 flex items-center justify-between px-[1em] z-[100] backdrop-blur bg-white-500 bg-opacity-75 ">
+            <button
+              className="w-auto rounded-md text-[12px] bg-none N-B text-dark-100 flex items-center justify-start top-1"
+              onClick={closeAssistantModal}
+            >
+              <IoIosArrowBack size={20} />
+              <p className="text-dark-100 text-[14px] ppM flex items-center justify-center gap-2">
+                Back
+              </p>
+            </button>
+            <button
+              className="w-[40px] h-[40px] bg-white-300 rounded-[50%] ppM flex flex-col text-center items-center justify-center"
+              onClick={() => setSettingsModal(true)}
+            >
+              <BiCog size={20} />
+            </button>
+          </div>
           {messages?.length === 0 && (
             <WelcomeScreen
               sendInitialAiMsg={sendInitialAiMsg}
@@ -373,7 +371,7 @@ function WelcomeScreen({ setMessage, sendInitialAiMsg }: WelcomeScreenProps) {
   ];
 
   return (
-    <div className="w-full h-[100vh] mt-4 py-8 flex flex-col items-center justify-start">
+    <div className="w-full h-[100vh] relative top-[4em] py-8 flex flex-col items-center justify-start">
       <div className="w-auto flex items-center justify-center">
         <ImageTag
           src="/assets/img/logo/leaf-logo.svg"

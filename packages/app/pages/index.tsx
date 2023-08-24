@@ -22,7 +22,7 @@ function Home() {
             <span className="N-EB text-[30px] text-white-100">Seedz</span>
           </div>
           <div className="w-full flex flex-col items-center justify-center">
-            <p className="text-white-100 text-[15px] mt-3 N-B">
+            <p className="text-white-100 text-center text-[15px] mt-3 N-B">
               Empowering Farmers, Enhancing Productivity
             </p>
             <br />

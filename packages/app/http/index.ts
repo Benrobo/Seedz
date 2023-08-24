@@ -62,6 +62,7 @@ export const GetAllProducts = gql`
         id
         fullname
         role
+        image
       }
     }
   }

@@ -11,7 +11,7 @@ import { AddProductInfoType, AllProductProp } from "../@types";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
 import { encode } from "blurhash";
-import { LazyLoadImg } from "@/components/Image";
+import ImageTag, { LazyLoadImg } from "@/components/Image";
 import axios from "axios";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
@@ -342,6 +342,8 @@ function Store() {
         : JSON.parse(localStorage.getItem("@userInfo") as string);
   }
 
+  console.log({ selectedProd });
+
   return (
     <Layout className="bg-white-105">
       <MobileLayout activePage="store" className="h-[100vh] overflow-y-hidden">
@@ -516,6 +518,21 @@ function Store() {
                 <span className="text-white-400 text-[13px] ppR">
                   {selectedProd?.description}
                 </span>
+              </div>
+              <div className="w-full relative flex items-center justify-start gap-5 top-[4em] ">
+                <ImageTag
+                  src={(selectedProd as any)?.user?.image}
+                  alt="user image"
+                  className="w-[40px] p-1 bg-dark-300 rounded-[50%] border-solid border-[3px] border-green-600 "
+                />
+                <div className="w-auto flex flex-col items-start justify-start">
+                  <p className="text-dark-100 N-B text-[14px]">
+                    {(selectedProd as any)?.user?.fullname}
+                  </p>
+                  <p className="text-white-400 N-B text-[10px]">
+                    {(selectedProd as any)?.user?.role}
+                  </p>
+                </div>
               </div>
 
               {/* Add to cart button */}

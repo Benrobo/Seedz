@@ -33,7 +33,7 @@ function Home() {
             typeof seedzUserInfo?.id === "undefined" ? (
               <Link
                 className="w-full max-w-[200px] bg-green-600 text-white-100 rounded-[30px] ppM text-[14px] flex items-center justify-center text-center px-3 py-3"
-                href="/auth/login"
+                href="/auth"
               >
                 Get Started
               </Link>

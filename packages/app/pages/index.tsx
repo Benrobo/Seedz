@@ -6,6 +6,8 @@ import React from "react";
 function Home() {
   const { seedzUserInfo } = useAuth();
 
+  console.log(seedzUserInfo);
+
   return (
     <div className="w-full h-[100vh] bg-green-700 flex flex-col items-center justify-center px-[4em] ">
       <div className="w-auto absolute top-2 right-4">
@@ -27,9 +29,10 @@ function Home() {
             </p>
             <br />
             <br />
-            {seedzUserInfo?.id === null ? (
+            {seedzUserInfo?.id === null ||
+            typeof seedzUserInfo?.id === "undefined" ? (
               <Link
-                className="w-full max-w-[300px] bg-green-600 text-white-100 rounded-[30px] ppM text-[14px] flex items-center justify-center text-center px-3 py-3"
+                className="w-full max-w-[200px] bg-green-600 text-white-100 rounded-[30px] ppM text-[14px] flex items-center justify-center text-center px-3 py-3"
                 href="/auth/login"
               >
                 Get Started

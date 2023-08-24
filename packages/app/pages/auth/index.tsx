@@ -25,9 +25,7 @@ function Login() {
         </div>
         <div className="w-full mt-4 max-w-[350px] border-solid border-[2px] border-white-600 scale-[.85] pp-SB z-[10] rounded-[10px] overflow-hidden ">
           {/* @ts-ignore */}
-          <passage-auth
-            app-id={"8SK9OUCCPs6xoNP6ieaVuucz" ?? "None"}
-          ></passage-auth>
+          <passage-auth app-id={ENV.passageAppId ?? "None"}></passage-auth>
         </div>
       </div>
     </div>

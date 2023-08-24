@@ -26,8 +26,9 @@ import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { Passage } from "@passageidentity/passage-js";
 import { IoIosLogOut } from "react-icons/io";
+import ENV from "./api/config/env";
 
-const passage = new Passage("8SK9OUCCPs6xoNP6ieaVuucz");
+const passage = new Passage(ENV.passageAppId);
 const passageUser = passage.getCurrentUser();
 
 function Dashboard() {

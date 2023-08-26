@@ -8,6 +8,7 @@ import { useMutation } from "@apollo/client";
 import { SeedzAssistant } from "@/http";
 import handleApolloHttpErrors from "@/http/error";
 import MarkdownRenderer from "../MarkdownRender";
+import { BsFillPlayFill } from "react-icons/bs";
 
 const chatLanguages = [
   {
@@ -55,7 +56,8 @@ function Assistant({
     { errorPolicy: "none" }
   );
   const [userMsg, setUserMsg] = React.useState("");
-  const [speech, setSpeech] = React.useState("");
+  const [isSpeaking, setIsSpeaking] = React.useState(false);
+  const [activeUtterance, setActiveUtterance] = React.useState(null);
 
   const messagesEndRef = React.useRef(null);
 
@@ -169,6 +171,64 @@ function Assistant({
     });
   };
 
+  // handle ai speaking
+  const handleTTS = (e: any) => {
+    const dataset = e.target?.dataset;
+    console.log(dataset);
+    if (Object.entries(dataset).length > 0) {
+      const cont = dataset["id"];
+      const allMsg =
+        localStorage.getItem("@seedz_ai_resp") === null
+          ? null
+          : JSON.parse(localStorage.getItem("@seedz_ai_resp") as any);
+      if (allMsg !== null) {
+        const filteredMsg = allMsg
+          .filter((d: any) => d?.type === "bot")
+          .filter((d: any) => d.message === cont);
+
+        if (filteredMsg.length > 0) {
+          const msg = filteredMsg[0]?.message;
+          if (activeUtterance) {
+            stopSpeaking();
+            // synthesizeAndSpeak(msg);
+          } else {
+            synthesizeAndSpeak(msg);
+          }
+        }
+      }
+    }
+  };
+
+  const synthesizeAndSpeak = (msg: string) => {
+    if ("speechSynthesis" in window) {
+      if (activeUtterance) {
+        speechSynthesis.cancel(); // Stop any currently active utterance
+      }
+
+      const voices = speechSynthesis.getVoices();
+      const utterance = new SpeechSynthesisUtterance(msg);
+
+      // Set up the event listener for when the utterance ends
+      utterance.addEventListener("end", () => {
+        setIsSpeaking(false);
+      });
+
+      utterance.voice = voices[41];
+
+      speechSynthesis.speak(utterance);
+      setActiveUtterance(utterance as any);
+      setIsSpeaking(true);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ("speechSynthesis" in window && activeUtterance) {
+      speechSynthesis.cancel(); // Cancel the active utterance
+      setActiveUtterance(null);
+      setIsSpeaking(false);
+    }
+  };
+
   return (
     <>
       <button
@@ -212,7 +272,7 @@ function Assistant({
               <div className="w-full min-h-[160px] "></div>
 
               {messages?.length > 0
-                ? messages?.map((m) => (
+                ? messages?.map((m, idx) => (
                     <div
                       key={m?.message?.length * Math.random() * 100}
                       className="w-full flex flex-col items-start justify-start gap-3"
@@ -227,7 +287,7 @@ function Assistant({
                       {m.type === "bot" && (
                         <div
                           key={m?.message?.length * Math.random() * 100}
-                          className="w-full flex flex-col items-start justify-start"
+                          className="w-full relative flex flex-col items-start justify-start"
                         >
                           <div
                             className={`w-auto bg-white2-300 h-auto ${
@@ -245,6 +305,18 @@ function Assistant({
                                 }
                               />
                             }
+                          </div>
+                          <div className="w-full flex items-start justify-start absolute bottom-[-2em] left-0">
+                            <button
+                              className="w-[40px] h-[40px] outline-none border-none bg-white2-300 flex flex-col items-center justify-center rounded-b-[10px] "
+                              data-id={m.message}
+                              onClick={handleTTS}
+                            >
+                              {/* <BsFillPlayFill /> */}
+                              <span data-id={m.message}>
+                                {isSpeaking ? "⏸" : "▶️"}
+                              </span>
+                            </button>
                           </div>
                         </div>
                       )}
